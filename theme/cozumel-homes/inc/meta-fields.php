@@ -43,11 +43,12 @@ add_action('add_meta_boxes', 'cozumel_add_meta_boxes');
 
 function cozumel_meta_field($key, $label, $post_id, $type = 'text') {
     $value = esc_attr(get_post_meta($post_id, $key, true));
-    echo "<p><label style='font-weight:600'>{$label}</label><br>";
+    echo "<p><label style='font-weight:600'>" . esc_html($label) . "</label><br>";
     echo "<input type='{$type}' name='{$key}' value='{$value}' style='width:100%;margin-top:4px'></p>";
 }
 
 function cozumel_rental_meta_box_html($post) {
+    wp_nonce_field('cozumel_save_meta', 'cozumel_meta_nonce');
     cozumel_meta_field('mac_id',              'Mac App ID (managed by sync — do not edit)', $post->ID);
     cozumel_meta_field('neighborhood',        'Neighborhood', $post->ID);
     cozumel_meta_field('address',             'Address', $post->ID);
@@ -63,6 +64,7 @@ function cozumel_rental_meta_box_html($post) {
 }
 
 function cozumel_forsale_meta_box_html($post) {
+    wp_nonce_field('cozumel_save_meta', 'cozumel_meta_nonce');
     cozumel_meta_field('mac_id',       'Mac App ID (managed by sync — do not edit)', $post->ID);
     cozumel_meta_field('asking_price', 'Asking Price (USD)', $post->ID);
     cozumel_meta_field('listing_url',  'External Listing URL', $post->ID);
@@ -78,6 +80,10 @@ function cozumel_forsale_meta_box_html($post) {
 // ── Save meta on post save ──────────────────────────────────────────────────
 function cozumel_save_meta($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!isset($_POST['cozumel_meta_nonce']) ||
+        !wp_verify_nonce($_POST['cozumel_meta_nonce'], 'cozumel_save_meta')) {
+        return;
+    }
     if (!current_user_can('edit_post', $post_id)) return;
 
     $all_fields = [
@@ -88,7 +94,10 @@ function cozumel_save_meta($post_id) {
     ];
     foreach ($all_fields as $field) {
         if (array_key_exists($field, $_POST)) {
-            update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));
+            $value = ($field === 'notes')
+                ? sanitize_textarea_field($_POST[$field])
+                : sanitize_text_field($_POST[$field]);
+            update_post_meta($post_id, $field, $value);
         }
     }
 }
