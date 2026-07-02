@@ -14,7 +14,7 @@ $lng = floatval($lng);
     case 'openstreetmap': ?>
         <iframe
             width="100%" height="350" frameborder="0" scrolling="no"
-            src="https://www.openstreetmap.org/export/embed.html?bbox=<?php echo ($lng - 0.005); ?>,<?php echo ($lat - 0.005); ?>,<?php echo ($lng + 0.005); ?>,<?php echo ($lat + 0.005); ?>&layer=mapnik&marker=<?php echo $lat; ?>,<?php echo $lng; ?>"
+            src="https://www.openstreetmap.org/export/embed.html?bbox=<?php echo esc_attr($lng - 0.005); ?>,<?php echo esc_attr($lat - 0.005); ?>,<?php echo esc_attr($lng + 0.005); ?>,<?php echo esc_attr($lat + 0.005); ?>&layer=mapnik&marker=<?php echo esc_attr($lat); ?>,<?php echo esc_attr($lng); ?>"
         ></iframe>
         <?php break;
     case 'apple': ?>
@@ -35,7 +35,7 @@ $lng = floatval($lng);
     default: ?>
         <iframe
             width="100%" height="350" frameborder="0" style="border:0"
-            src="https://www.google.com/maps/embed/v1/place?key=<?php echo esc_attr(COZUMEL_GOOGLE_MAPS_KEY); ?>&q=<?php echo $lat; ?>,<?php echo $lng; ?>&zoom=15"
+            src="https://www.google.com/maps/embed/v1/place?key=<?php echo esc_attr(COZUMEL_GOOGLE_MAPS_KEY); ?>&q=<?php echo esc_attr($lat); ?>,<?php echo esc_attr($lng); ?>&zoom=15"
             allowfullscreen
         ></iframe>
         <?php break;
