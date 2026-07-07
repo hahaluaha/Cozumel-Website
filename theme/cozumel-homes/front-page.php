@@ -1,0 +1,107 @@
+<?php get_header(); ?>
+<main>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1 class="hero__title">Cozumel Homes</h1>
+        <p class="hero__tagline">Premium vacation rentals and real estate in Cozumel, Mexico</p>
+        <a href="/rentals/" class="btn btn--primary">View Rentals</a>
+        &nbsp;
+        <a href="/for-sale/" class="btn btn--outline">Properties for Sale</a>
+    </section>
+
+    <!-- About Kelley -->
+    <section class="section" style="border-bottom:1px solid #eee">
+        <div style="max-width:760px">
+            <h2 class="section__title">Boutique Property Management</h2>
+            <p style="font-size:1.1rem;line-height:1.8;color:#444">
+                Kelley Morgan Gonzalez brings over 20 years of island experience to every stay.
+                Whether you're planning a diving escape, a family holiday, or searching for your
+                dream property in Cozumel, you'll receive friendly, personalized service from
+                someone who truly knows this island.
+            </p>
+            <p style="color:#6b6b6b">
+                <a href="mailto:home@cozumelhomes.net">home@cozumelhomes.net</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Rental Properties -->
+    <section class="section">
+        <h2 class="section__title">Vacation Rentals</h2>
+        <p class="section__subtitle">Hand-selected properties across Cozumel's most sought-after neighborhoods</p>
+        <div class="properties-grid">
+            <?php
+            $rentals = new WP_Query([
+                'post_type'      => 'rental-property',
+                'posts_per_page' => 6,
+                'post_status'    => 'publish',
+                'meta_query'     => [[
+                    'key'     => 'status',
+                    'value'   => 'active',
+                    'compare' => '=',
+                ]],
+            ]);
+            if ($rentals->have_posts()):
+                while ($rentals->have_posts()) : $rentals->the_post();
+                    get_template_part('template-parts/property-card');
+                endwhile;
+                wp_reset_postdata();
+            else: ?>
+                <p>Rental properties coming soon.</p>
+            <?php endif; ?>
+        </div>
+        <p style="margin-top:24px"><a href="/rentals/" class="btn btn--outline">View All Rentals</a></p>
+    </section>
+
+    <!-- For Sale -->
+    <?php
+    $forsale = new WP_Query([
+        'post_type'      => 'forsale-property',
+        'posts_per_page' => 3,
+        'post_status'    => 'publish',
+    ]);
+    if ($forsale->have_posts()): ?>
+        <section class="section" style="background:#f9f6f0">
+            <h2 class="section__title">Properties for Sale</h2>
+            <p class="section__subtitle">Exceptional Cozumel real estate represented by Kelley Morgan Gonzalez</p>
+            <div class="properties-grid">
+                <?php while ($forsale->have_posts()) : $forsale->the_post();
+                    get_template_part('template-parts/forsale-card');
+                endwhile;
+                wp_reset_postdata(); ?>
+            </div>
+            <p style="margin-top:24px"><a href="/for-sale/" class="btn btn--outline">View All For Sale</a></p>
+        </section>
+    <?php endif; ?>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div style="max-width:1100px;margin:0 auto">
+            <h2 class="section__title" style="text-align:center;margin-bottom:32px">What Our Guests Say</h2>
+            <div class="testimonials__grid">
+                <div class="testimonial">
+                    <p class="testimonial__text">"The property exceeded our expectations in every way. Kelley was incredibly responsive and made our stay in Cozumel truly memorable."</p>
+                    <p class="testimonial__author">— Guest, Nah Ha Condominium 101</p>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial__text">"Vistas increíbles al mar — incredible ocean views. The apartment is exactly as described and Kelley's local knowledge made all the difference."</p>
+                    <p class="testimonial__author">— Guest, Cool Caribbean Views</p>
+                </div>
+                <div class="testimonial">
+                    <p class="testimonial__text">"We loved staying at Casa Bohemia. A bright, airy home in a wonderful neighborhood — perfect for our family vacation to Cozumel."</p>
+                    <p class="testimonial__author">— Guest, Casa Bohemia</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Inquiry -->
+    <section class="section" style="max-width:760px">
+        <h2 class="section__title">Plan Your Cozumel Stay</h2>
+        <p class="section__subtitle">Send us your dates and we'll find the right property for you.</p>
+        <?php cozumel_render_inquiry_form(); ?>
+    </section>
+
+</main>
+<?php get_footer(); ?>
