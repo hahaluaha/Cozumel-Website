@@ -12,3 +12,4 @@ define('COZUMEL_GOOGLE_MAPS_KEY', defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_A
 
 require_once get_stylesheet_directory() . '/inc/post-types.php';
 require_once get_stylesheet_directory() . '/inc/meta-fields.php';
+require_once get_stylesheet_directory() . '/inc/inquiry-form.php';
