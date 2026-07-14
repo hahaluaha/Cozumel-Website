@@ -44,6 +44,17 @@ body {
 .property-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.14); }
 .property-card a { text-decoration: none; color: inherit; }
 .property-card__image { width: 100%; height: 220px; object-fit: cover; display: block; }
+.property-card__image--placeholder {
+    background: #eef0f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.property-card__image--placeholder::after {
+    content: "Photo coming soon";
+    color: var(--color-muted);
+    font-size: 0.85rem;
+}
 .property-card__body { padding: 20px; }
 .property-card__title { font-family: var(--font-primary); font-size: 1.2rem; margin: 0 0 6px; }
 .property-card__neighborhood { color: var(--color-muted); font-size: 0.9rem; margin: 0 0 6px; }
