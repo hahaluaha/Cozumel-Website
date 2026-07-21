@@ -3,6 +3,16 @@ function cozumel_enqueue_styles() {
     wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
     wp_enqueue_style('child-style', get_stylesheet_uri(), ['parent-style']);
     wp_enqueue_style('cozumel-theme', get_stylesheet_directory_uri() . '/assets/css/theme.css', ['child-style'], '1.0.0');
+
+    if (is_singular(['rental-property', 'forsale-property'])) {
+        wp_enqueue_script(
+            'cozumel-carousel',
+            get_stylesheet_directory_uri() . '/assets/js/carousel.js',
+            [],
+            '1.0.0',
+            true
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'cozumel_enqueue_styles');
 

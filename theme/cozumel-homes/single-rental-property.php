@@ -11,11 +11,7 @@
         $airbnb_url       = get_post_meta(get_the_ID(), 'airbnb_listing_url', true);
         ?>
 
-        <?php if (has_post_thumbnail()): ?>
-            <div class="property-single__hero">
-                <?php the_post_thumbnail('full', ['style' => 'width:100%;max-height:500px;object-fit:cover']); ?>
-            </div>
-        <?php endif; ?>
+        <?php get_template_part('template-parts/carousel'); ?>
 
         <div style="max-width:960px;margin:0 auto;padding:32px 24px">
 
