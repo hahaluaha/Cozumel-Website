@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        var scrollSyncTimeout = null;
+        track.addEventListener('scroll', function () {
+            if (scrollSyncTimeout) clearTimeout(scrollSyncTimeout);
+            scrollSyncTimeout = setTimeout(function () {
+                var index = Math.round(track.scrollLeft / track.clientWidth);
+                current = Math.max(0, Math.min(index, slides.length - 1));
+                dots.forEach(function (dot, i) {
+                    dot.classList.toggle('is-active', i === current);
+                });
+            }, 100);
+        });
+
         if (prevBtn) prevBtn.addEventListener('click', function () { goTo(current - 1); });
         if (nextBtn) nextBtn.addEventListener('click', function () { goTo(current + 1); });
         dots.forEach(function (dot, i) {
