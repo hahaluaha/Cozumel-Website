@@ -28,6 +28,22 @@ function cozumel_register_meta_fields() {
 }
 add_action('init', 'cozumel_register_meta_fields');
 
+// ── Gallery photos meta (shared by rentals and for-sale) ───────────────────
+function cozumel_register_gallery_meta($post_type) {
+    register_post_meta($post_type, 'gallery_ids', [
+        'single'       => true,
+        'type'         => 'array',
+        'default'      => [],
+        'show_in_rest' => [
+            'schema' => ['type' => 'array', 'items' => ['type' => 'integer']],
+        ],
+    ]);
+}
+add_action('init', function () {
+    cozumel_register_gallery_meta('rental-property');
+    cozumel_register_gallery_meta('forsale-property');
+});
+
 // ── Admin meta boxes ────────────────────────────────────────────────────────
 function cozumel_add_meta_boxes() {
     add_meta_box(
