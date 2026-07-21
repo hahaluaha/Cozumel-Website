@@ -24,6 +24,9 @@ jQuery(function ($) {
             var selection = frame.state().get('selection');
             selection.each(function (attachment) {
                 var data = attachment.toJSON();
+                if ($list.find('.cozumel-gallery-item[data-id="' + data.id + '"]').length) {
+                    return;
+                }
                 var thumbUrl = (data.sizes && data.sizes.thumbnail) ? data.sizes.thumbnail.url : data.url;
                 var $item = $('<li class="cozumel-gallery-item" style="position:relative;cursor:move">')
                     .attr('data-id', data.id)
