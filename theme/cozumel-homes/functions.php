@@ -14,3 +14,20 @@ require_once get_stylesheet_directory() . '/inc/post-types.php';
 require_once get_stylesheet_directory() . '/inc/meta-fields.php';
 require_once get_stylesheet_directory() . '/inc/inquiry-form.php';
 require_once get_stylesheet_directory() . '/inc/dev-application-passwords.php';
+
+function cozumel_enqueue_gallery_admin_assets($hook) {
+    if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
+    $screen = get_current_screen();
+    if (!$screen || !in_array($screen->post_type, ['rental-property', 'forsale-property'], true)) return;
+
+    wp_enqueue_media();
+    wp_enqueue_script('jquery-ui-sortable');
+    wp_enqueue_script(
+        'cozumel-gallery-picker',
+        get_stylesheet_directory_uri() . '/assets/js/gallery-picker.js',
+        ['jquery', 'jquery-ui-sortable'],
+        '1.0.0',
+        true
+    );
+}
+add_action('admin_enqueue_scripts', 'cozumel_enqueue_gallery_admin_assets');

@@ -54,6 +54,10 @@ function cozumel_add_meta_boxes() {
         'forsale_details', 'Property Details',
         'cozumel_forsale_meta_box_html', 'forsale-property', 'normal', 'high'
     );
+    add_meta_box(
+        'gallery_photos', 'Gallery Photos',
+        'cozumel_gallery_meta_box_html', ['rental-property', 'forsale-property'], 'normal', 'high'
+    );
 }
 add_action('add_meta_boxes', 'cozumel_add_meta_boxes');
 
@@ -93,6 +97,29 @@ function cozumel_forsale_meta_box_html($post) {
     echo "<textarea name='notes' style='width:100%;height:80px;margin-top:4px'>{$notes}</textarea></p>";
 }
 
+function cozumel_gallery_meta_box_html($post) {
+    wp_nonce_field('cozumel_save_meta', 'cozumel_meta_nonce');
+    $ids = get_post_meta($post->ID, 'gallery_ids', true);
+    if (!is_array($ids)) { $ids = []; }
+    ?>
+    <div id="cozumel-gallery-picker">
+        <ul id="cozumel-gallery-list" style="display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0 0 12px;padding:0">
+            <?php foreach ($ids as $id):
+                $thumb = wp_get_attachment_image_src($id, 'thumbnail');
+                if (!$thumb) continue;
+            ?>
+                <li class="cozumel-gallery-item" data-id="<?php echo esc_attr($id); ?>" style="position:relative;cursor:move">
+                    <img src="<?php echo esc_url($thumb[0]); ?>" style="width:80px;height:80px;object-fit:cover;border-radius:4px;display:block">
+                    <button type="button" class="cozumel-gallery-remove" style="position:absolute;top:-6px;right:-6px;background:#c00;color:#fff;border:none;border-radius:50%;width:20px;height:20px;line-height:1;cursor:pointer">×</button>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <input type="hidden" name="gallery_ids" id="cozumel-gallery-ids-input" value="<?php echo esc_attr(implode(',', $ids)); ?>">
+        <button type="button" class="button" id="cozumel-gallery-add">Add Photos</button>
+    </div>
+    <?php
+}
+
 // ── Save meta on post save ──────────────────────────────────────────────────
 function cozumel_save_meta($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
@@ -115,6 +142,11 @@ function cozumel_save_meta($post_id) {
                 : sanitize_text_field($_POST[$field]);
             update_post_meta($post_id, $field, $value);
         }
+    }
+
+    if (isset($_POST['gallery_ids'])) {
+        $ids = array_filter(array_map('absint', explode(',', $_POST['gallery_ids'])));
+        update_post_meta($post_id, 'gallery_ids', array_values($ids));
     }
 }
 add_action('save_post', 'cozumel_save_meta');
