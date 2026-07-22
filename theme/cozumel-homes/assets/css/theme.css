@@ -256,5 +256,10 @@ body {
 
 @media (max-width: 720px) {
     .hero { min-height: 480px; margin: 16px; }
-    .hero__panel { margin: 0 16px; padding: 28px; max-width: none; transform: none; }
+    .hero__panel { margin: 0 16px; padding: 20px; max-width: none; transform: none; }
+    .hero__eyebrow { font-size: 0.85rem; margin: 0 0 12px; }
+    .hero__title { font-size: 1.7rem; margin: 0 0 12px; }
+    .hero__tagline { font-size: 0.9rem; margin: 0 auto 20px; }
+    .hero__ctas { gap: 8px; }
+    .hero__ctas .btn { padding: 10px 18px; font-size: 0.85rem; }
 }
