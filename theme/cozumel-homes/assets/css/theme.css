@@ -158,6 +158,13 @@ body {
     margin: 0 auto 28px;
 }
 .hero__ctas { display: flex; gap: 12px; justify-content: center; }
+.hero__ctas .btn--outline {
+    border-color: rgba(245,240,232,0.5);
+    color: var(--color-sand);
+}
+.hero__ctas .btn--outline:hover {
+    background: rgba(245,240,232,0.08);
+}
 .hero__wave {
     position: absolute;
     left: 0; right: 0; bottom: -1px;
