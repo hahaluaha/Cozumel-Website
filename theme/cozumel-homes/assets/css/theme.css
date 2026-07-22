@@ -158,11 +158,6 @@ body {
     .hero__dot:first-child::after { height: 100%; }
 }
 
-@media (max-width: 720px) {
-    .hero { min-height: 480px; margin: 16px; }
-    .hero__panel { margin: 0 16px; padding: 28px; max-width: none; transform: none; }
-}
-
 .hero__scrim {
     position: absolute; inset: 0;
     background: linear-gradient(0deg, var(--color-navy-deep) 0%, rgba(10,18,38,0.55) 32%, rgba(10,18,38,0.15) 55%, rgba(10,18,38,0.35) 100%);
@@ -257,4 +252,9 @@ body {
 
 @media (max-width: 640px) {
     .properties-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+    .hero { min-height: 480px; margin: 16px; }
+    .hero__panel { margin: 0 16px; padding: 28px; max-width: none; transform: none; }
 }
