@@ -3,11 +3,31 @@
 
     <!-- Hero -->
     <section class="hero">
-        <h1 class="hero__title">Cozumel Homes</h1>
-        <p class="hero__tagline">Premium vacation rentals and real estate in Cozumel, Mexico</p>
-        <a href="/rentals/" class="btn btn--primary">View Rentals</a>
-        &nbsp;
-        <a href="/for-sale/" class="btn btn--outline">Properties for Sale</a>
+        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-NahHa101sunsetpool-1.avif" alt="Nah Ha 101 sunset pool"></div>
+        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-Cool-Caribbean-ocean-view-1.avif" alt="Cool Caribbean Views ocean view"></div>
+        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-Casa-Bohemia-masks-1.avif" alt="Casa Bohemia snorkel masks"></div>
+        <div class="hero__scrim"></div>
+
+        <div class="hero__panel">
+            <p class="hero__eyebrow">Cozumel, Mexico</p>
+            <h1 class="hero__title">Your island story, <em>waiting</em></h1>
+            <p class="hero__tagline">Premium vacation rentals and real estate, hand-managed by someone who actually lives here.</p>
+            <div class="hero__ctas">
+                <a href="/rentals/" class="btn btn--primary">View Rentals →</a>
+                <a href="/for-sale/" class="btn btn--outline">Properties for Sale</a>
+            </div>
+        </div>
+
+        <svg class="hero__wave" viewBox="0 0 1200 60" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="hero-wave-grad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#1c8fa6"></stop>
+                    <stop offset="50%" stop-color="#2eb3c4"></stop>
+                    <stop offset="100%" stop-color="#1c8fa6"></stop>
+                </linearGradient>
+            </defs>
+            <path d="M0,30 C150,60 350,0 600,25 C850,50 1050,5 1200,30 L1200,60 L0,60 Z" fill="url(#hero-wave-grad)"></path>
+        </svg>
     </section>
 
     <!-- About Kelley -->
