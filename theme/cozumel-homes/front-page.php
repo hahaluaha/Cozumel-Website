@@ -3,9 +3,9 @@
 
     <!-- Hero -->
     <section class="hero">
-        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-NahHa101sunsetpool-1.avif" alt="Nah Ha 101 sunset pool"></div>
-        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-Cool-Caribbean-ocean-view-1.avif" alt="Cool Caribbean Views ocean view"></div>
-        <div class="hero__slide"><img src="http://cozumel-homes.local/wp-content/uploads/2026/07/resized-Casa-Bohemia-masks-1.avif" alt="Casa Bohemia snorkel masks"></div>
+        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 130, 'full' ) ); ?>" alt="Nah Ha 101 sunset pool"></div>
+        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 131, 'full' ) ); ?>" alt="Cool Caribbean Views ocean view"></div>
+        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 132, 'full' ) ); ?>" alt="Casa Bohemia snorkel masks"></div>
         <div class="hero__scrim"></div>
 
         <div class="hero__panel">
