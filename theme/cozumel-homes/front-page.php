@@ -18,6 +18,12 @@
             </div>
         </div>
 
+        <div class="hero__dots" aria-hidden="true">
+            <div class="hero__dot"></div>
+            <div class="hero__dot"></div>
+            <div class="hero__dot"></div>
+        </div>
+
         <svg class="hero__wave" viewBox="0 0 1200 60" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="hero-wave-grad" x1="0" y1="0" x2="1" y2="0">
