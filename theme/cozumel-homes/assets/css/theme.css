@@ -1,6 +1,11 @@
 :root {
     --color-sand: #f5f0e8;
-    --color-ocean: #2a6fa8;
+    --color-navy-deep: #0a1226;
+    --color-navy: #1c3260;
+    --color-navy-light: #2d4a86;
+    --color-turquoise: #2eb3c4;
+    --color-turquoise-deep: #1c8fa6;
+    --color-gold: #c9a08a;
     --color-text: #2c2c2c;
     --color-muted: #6b6b6b;
     --color-white: #ffffff;
@@ -24,9 +29,9 @@ body {
     transition: opacity 0.2s;
 }
 .btn:hover { opacity: 0.85; }
-.btn--primary { background: var(--color-ocean); color: var(--color-white); }
+.btn--primary { background: var(--color-gold); color: #2a2016; }
 .btn--airbnb { background: #ff5a5f; color: var(--color-white); }
-.btn--outline { border: 2px solid var(--color-ocean); color: var(--color-ocean); background: transparent; }
+.btn--outline { border: 2px solid var(--color-navy); color: var(--color-navy); background: transparent; }
 
 .properties-grid {
     display: grid;
@@ -59,13 +64,13 @@ body {
 .property-card__title { font-family: var(--font-primary); font-size: 1.2rem; margin: 0 0 6px; }
 .property-card__neighborhood { color: var(--color-muted); font-size: 0.9rem; margin: 0 0 6px; }
 .property-card__specs { color: var(--color-muted); font-size: 0.85rem; margin: 0 0 10px; }
-.property-card__rate { font-weight: 700; font-size: 1.1rem; color: var(--color-ocean); margin: 0; }
+.property-card__rate { font-weight: 700; font-size: 1.1rem; color: var(--color-navy); margin: 0; }
 
 .property-single { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
 .property-single h1 { font-family: var(--font-primary); font-size: 2.2rem; }
 .property-single__neighborhood { color: var(--color-muted); font-size: 1.1rem; }
 .property-single__specs { color: var(--color-muted); }
-.property-single__rate { font-size: 1.5rem; font-weight: 700; color: var(--color-ocean); }
+.property-single__rate { font-size: 1.5rem; font-weight: 700; color: var(--color-navy); }
 .property-single__booking { margin: 32px 0; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 .property-single__map { margin: 32px 0; border-radius: 8px; overflow: hidden; }
 .property-single__inquiry { margin-top: 48px; }
