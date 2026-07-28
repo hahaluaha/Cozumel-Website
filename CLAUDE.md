@@ -43,6 +43,35 @@ current plan is `.superpowers/sdd/progress.md` in this repo.
   nightly rate; full-month stays use a separate flat monthly rate with electricity
   billed separately by guest consumption.
 
+## Web Design & Quality Standards
+- **Rendering**: staying WordPress (server-renders on request, no headless/React
+  layer). Use page caching (Hostinger LiteSpeed cache, purge on content change) as
+  the ISR-equivalent. RSC/SSR/ISR as React concepts don't apply here — don't add
+  a JS framework layer without a concrete need that WP can't meet.
+- **Core Web Vitals targets**: LCP < 2.5s, INP < 200ms, CLS < 0.1. Preload the hero
+  image, set `width`/`height` or `aspect-ratio` on every image/video so nothing
+  shifts on load, defer non-critical JS.
+- **Accessibility**: WCAG 2.2 AA — contrast ≥ 4.5:1 body text, visible focus states,
+  24×24px minimum touch targets, no drag-only interactions without an alternative.
+- **Security**: OWASP Top 10 baseline — WP core/plugin/theme auto-updates,
+  least-privilege DB user, HTTPS everywhere, disable XML-RPC if unused, sanitize
+  custom form input, don't expose WP version.
+- **SEO / AEO**: schema.org markup for lodging listings (price, location, amenities),
+  one H1 per page, descriptive alt text on every property photo, concise
+  direct-answer content near the top of each page for AI-search crawlers, FAQ
+  schema, consistent name/address/phone across pages.
+- **Typography & hierarchy**: defined type scale, consistent spacing tokens, max 2
+  typefaces, 45–75 character line length, heading hierarchy matches semantic HTML
+  (`nav`/`main`/`article` over generic divs).
+- **Cross-browser**: latest 2 versions of Chrome/Safari/Firefox + mobile Safari; no
+  unprefixed experimental CSS without a fallback.
+- **Audience & landing goal**: US/Canada travelers comparison-shopping against
+  Airbnb/VRBO, mobile-heavy. Nah Ha 101 (luxury) — CTA is direct inquiry, pitch is
+  better-than-Airbnb rate plus personal service. Casa Bohemia / Cool Caribbean
+  Views (mid-budget) — CTA is the same inquiry action, but price and the 7-night
+  discount need to surface fast. Every page should make it clear within ~5 seconds
+  that it's a real, bookable Cozumel property, its price range, and how to contact.
+
 ## Out of Scope (per project preference)
 - Avoid WordPress plugins where a reasonable custom alternative exists (past
   experience: plugins are a common source of bloat/security risk). MotoPress and
