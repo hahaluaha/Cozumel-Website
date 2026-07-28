@@ -17,7 +17,7 @@ function cozumel_enqueue_styles() {
 add_action('wp_enqueue_scripts', 'cozumel_enqueue_styles');
 
 // Map provider: 'google' | 'apple' | 'openstreetmap'
-define('COZUMEL_MAP_PROVIDER', 'google');
+define('COZUMEL_MAP_PROVIDER', 'openstreetmap');
 define('COZUMEL_GOOGLE_MAPS_KEY', defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '');
 
 require_once get_stylesheet_directory() . '/inc/post-types.php';
