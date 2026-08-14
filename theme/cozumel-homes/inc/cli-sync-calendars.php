@@ -7,6 +7,13 @@ require_once __DIR__ . '/ical-sync.php';
 
 class Cozumel_Sync_Calendars_Command {
     /**
+     * Sentinel returned by sync_one() when a property has no
+     * airbnb_ical_url configured — a deliberate, permanent skip, not a
+     * failure. Never added to $failures, never emailed.
+     */
+    private const SKIPPED = '__skipped__';
+
+    /**
      * Fetch each rental property's Airbnb iCal feed, store blocked dates,
      * and republish the outbound .ics with the cleaning buffer applied.
      */
@@ -22,6 +29,10 @@ class Cozumel_Sync_Calendars_Command {
 
         foreach ($properties as $property) {
             $result = $this->sync_one($property, $buffer_days);
+            if ($result === self::SKIPPED) {
+                WP_CLI::log("{$property->post_title}: no airbnb_ical_url set, skipped");
+                continue;
+            }
             if ($result !== true) {
                 $failures[] = "{$property->post_title}: {$result}";
             }
@@ -36,12 +47,13 @@ class Cozumel_Sync_Calendars_Command {
     }
 
     /**
-     * @return true|string true on success, error description on failure
+     * @return true|string true on success, self::SKIPPED for a deliberate
+     *                      skip, or an error description on failure
      */
     private function sync_one($property, int $buffer_days) {
         $airbnb_url = get_post_meta($property->ID, 'airbnb_ical_url', true);
         if (empty($airbnb_url)) {
-            return 'no airbnb_ical_url set, skipped';
+            return self::SKIPPED;
         }
 
         $response = wp_remote_get($airbnb_url, ['timeout' => 20]);
@@ -60,10 +72,6 @@ class Cozumel_Sync_Calendars_Command {
             return 'response was not a valid iCal feed';
         }
 
-        // Inbound: overwrite with fresh data — Airbnb's feed is the full
-        // source of truth for this leg, on success only.
-        update_post_meta($property->ID, 'airbnb_blocked_dates', wp_json_encode($airbnb_ranges));
-
         // Outbound: combine Airbnb + manual holds, apply the buffer, publish.
         $manual_raw = get_post_meta($property->ID, 'manual_blocked_dates', true);
         $manual_ranges = json_decode($manual_raw ?: '[]', true);
@@ -75,10 +83,20 @@ class Cozumel_Sync_Calendars_Command {
         $buffered = cozumel_ical_apply_buffer($combined, $buffer_days);
         $ics = cozumel_ical_generate($buffered, $property->post_title);
 
+        // Write the outbound .ics FIRST. Only once it has succeeded do we
+        // durably advance airbnb_blocked_dates — so the published file and
+        // the stored meta always advance together, never one without the
+        // other. This keeps the "last-known-good data was preserved" claim
+        // in email_failures() true even when the fetch/parse succeeded but
+        // the disk write failed (disk full, permissions, etc.).
         $write_result = $this->write_ics_file($property->post_name, $ics);
         if ($write_result !== true) {
             return $write_result;
         }
+
+        // Inbound: overwrite with fresh data — Airbnb's feed is the full
+        // source of truth for this leg, on success only.
+        update_post_meta($property->ID, 'airbnb_blocked_dates', wp_json_encode($airbnb_ranges));
 
         return true;
     }
