@@ -5,6 +5,7 @@ function cozumel_register_meta_fields() {
         'mac_id', 'neighborhood', 'address', 'base_rate', 'status',
         'max_guests', 'bedrooms', 'bathrooms',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
+        'manual_blocked_dates', 'airbnb_blocked_dates',
     ];
     foreach ($rental_fields as $field) {
         register_post_meta('rental-property', $field, [
@@ -81,6 +82,11 @@ function cozumel_rental_meta_box_html($post) {
     cozumel_meta_field('longitude',           'Longitude (set once — not overwritten by sync)', $post->ID);
     cozumel_meta_field('airbnb_ical_url',     'Airbnb iCal Export URL', $post->ID);
     cozumel_meta_field('airbnb_listing_url',  'Airbnb Listing URL', $post->ID);
+    $manual_blocked = esc_textarea(get_post_meta($post->ID, 'manual_blocked_dates', true));
+    echo "<p><label style='font-weight:600'>Manual Holds (JSON array of {\"start\":\"YYYY-MM-DD\",\"end\":\"YYYY-MM-DD\"}, e.g. maintenance/personal use)</label><br>";
+    echo "<textarea name='manual_blocked_dates' style='width:100%;height:60px;margin-top:4px' placeholder='[]'>{$manual_blocked}</textarea></p>";
+    $airbnb_blocked = get_post_meta($post->ID, 'airbnb_blocked_dates', true);
+    echo "<p style='color:#6b6b6b;font-size:0.85rem'>Airbnb-synced blocked dates (managed by the sync cron — do not edit): " . esc_html($airbnb_blocked ?: '(none yet — sync has not run)') . "</p>";
 }
 
 function cozumel_forsale_meta_box_html($post) {
@@ -141,6 +147,16 @@ function cozumel_save_meta($post_id) {
                 ? sanitize_textarea_field($_POST[$field])
                 : sanitize_text_field($_POST[$field]);
             update_post_meta($post_id, $field, $value);
+        }
+    }
+
+    if (array_key_exists('manual_blocked_dates', $_POST)) {
+        $raw = wp_unslash($_POST['manual_blocked_dates']);
+        $decoded = json_decode($raw, true);
+        // Only save if it's valid JSON representing an array — an admin
+        // typo shouldn't silently corrupt the stored value into garbage.
+        if (is_array($decoded)) {
+            update_post_meta($post_id, 'manual_blocked_dates', wp_json_encode($decoded));
         }
     }
 
