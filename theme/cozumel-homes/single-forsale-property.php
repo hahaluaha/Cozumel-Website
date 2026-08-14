@@ -6,6 +6,7 @@
         $listing_url = get_post_meta(get_the_ID(), 'listing_url', true);
         $bedrooms    = get_post_meta(get_the_ID(), 'bedrooms', true);
         $bathrooms   = get_post_meta(get_the_ID(), 'bathrooms', true);
+        $walkthrough_id = get_post_meta(get_the_ID(), 'walkthrough_video_id', true);
         ?>
 
         <?php get_template_part('template-parts/carousel'); ?>
@@ -13,6 +14,15 @@
         <div style="max-width:960px;margin:0 auto;padding:32px 24px">
 
             <h1 style="font-family:Georgia,serif;font-size:2.2rem;margin:0 0 8px"><?php the_title(); ?></h1>
+
+            <?php if ($walkthrough_id): ?>
+                <div class="property-video--vertical">
+                    <video controls preload="metadata" playsinline
+                           poster="<?php echo esc_url(wp_get_attachment_image_url(get_post_thumbnail_id(), 'large') ?: ''); ?>">
+                        <source src="<?php echo esc_url(wp_get_attachment_url($walkthrough_id)); ?>" type="video/mp4">
+                    </video>
+                </div>
+            <?php endif; ?>
 
             <?php if ($bedrooms || $bathrooms): ?>
                 <p class="property-single__specs">
