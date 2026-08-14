@@ -17,6 +17,16 @@
         return set;
     }
 
+    function rangeIsClear(startISO, endISO, unavailableSet) {
+        var cur = new Date(startISO + 'T00:00:00');
+        var end = new Date(endISO + 'T00:00:00');
+        while (cur < end) {
+            if (unavailableSet.has(toISO(cur))) return false;
+            cur.setDate(cur.getDate() + 1);
+        }
+        return true;
+    }
+
     function renderMonth(container, year, month, unavailableSet, selection, onPick) {
         var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
         var first = new Date(year, month, 1);
@@ -63,22 +73,34 @@
 
                 var unavailableSet = buildUnavailableSet(ranges);
                 var now = new Date();
+                var viewMonthOffset = 0;
                 var grid = document.createElement('div');
                 grid.className = 'availability-calendar';
+                var nav = document.createElement('div');
+                nav.className = 'availability-calendar__nav';
+                nav.innerHTML =
+                    '<button type="button" class="availability-calendar__nav-btn" data-nav="prev">‹</button>' +
+                    '<button type="button" class="availability-calendar__nav-btn" data-nav="next">›</button>';
+                root.appendChild(nav);
                 root.appendChild(grid);
 
                 function redraw() {
                     grid.innerHTML = '';
-                    renderMonth(grid, now.getFullYear(), now.getMonth(), unavailableSet, selection, handlePick);
-                    var next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-                    renderMonth(grid, next.getFullYear(), next.getMonth(), unavailableSet, selection, handlePick);
+                    for (var m = 0; m < 3; m++) {
+                        var view = new Date(now.getFullYear(), now.getMonth() + viewMonthOffset + m, 1);
+                        renderMonth(grid, view.getFullYear(), view.getMonth(), unavailableSet, selection, handlePick);
+                    }
                 }
 
                 function handlePick(iso) {
                     if (!selection.start || (selection.start && selection.end)) {
                         selection = { start: iso, end: null };
                     } else if (iso > selection.start) {
-                        selection.end = iso;
+                        if (rangeIsClear(selection.start, iso, unavailableSet)) {
+                            selection.end = iso;
+                        } else {
+                            selection = { start: iso, end: null };
+                        }
                     } else {
                         selection = { start: iso, end: null };
                     }
@@ -90,6 +112,18 @@
                 grid.addEventListener('click', function (e) {
                     var btn = e.target.closest('.availability-calendar__day--available, .availability-calendar__day--selected');
                     if (btn) handlePick(btn.getAttribute('data-date'));
+                });
+
+                nav.addEventListener('click', function (e) {
+                    var btn = e.target.closest('.availability-calendar__nav-btn');
+                    if (!btn) return;
+                    var dir = btn.getAttribute('data-nav');
+                    if (dir === 'prev') {
+                        viewMonthOffset = Math.max(0, viewMonthOffset - 1);
+                    } else if (dir === 'next') {
+                        viewMonthOffset += 1;
+                    }
+                    redraw();
                 });
 
                 redraw();

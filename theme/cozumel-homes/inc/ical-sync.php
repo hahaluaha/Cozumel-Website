@@ -32,12 +32,16 @@ function cozumel_ical_date_to_iso(string $yyyymmdd): string {
 function cozumel_ical_apply_buffer(array $ranges, int $buffer_days): array {
     $buffered = [];
     foreach ($ranges as $range) {
-        $end = new DateTime($range['end']);
-        $end->modify("+{$buffer_days} day" . ($buffer_days === 1 ? '' : 's'));
-        $buffered[] = [
-            'start' => $range['start'],
-            'end'   => $end->format('Y-m-d'),
-        ];
+        if (!is_array($range) || empty($range['start']) || empty($range['end'])) {
+            continue;
+        }
+        try {
+            $end = new DateTime($range['end']);
+        } catch (Exception $e) {
+            continue;
+        }
+        $end->modify("+{$buffer_days} days");
+        $buffered[] = ['start' => $range['start'], 'end' => $end->format('Y-m-d')];
     }
     return $buffered;
 }

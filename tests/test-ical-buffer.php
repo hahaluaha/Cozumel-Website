@@ -25,4 +25,16 @@ assert_equal($boundary[0]['end'], '2026-10-01', 'buffer correctly rolls over a m
 // Empty input
 assert_equal(cozumel_ical_apply_buffer([], 1), [], 'empty input returns empty output');
 
+// Malformed ranges are skipped defensively, not thrown — a valid range
+// elsewhere in the same input array still processes correctly.
+$malformed = cozumel_ical_apply_buffer([
+    ['start' => '2026-09-01', 'end' => 'not-a-date'],
+    'this-is-not-an-array',
+    ['start' => '2026-09-10'], // missing 'end'
+    ['start' => '2026-09-15', 'end' => '2026-09-16'],
+], 1);
+assert_equal(count($malformed), 1, 'malformed ranges are skipped, only the valid one remains');
+assert_equal($malformed[0]['start'], '2026-09-15', 'valid range start preserved despite malformed siblings');
+assert_equal($malformed[0]['end'], '2026-09-17', 'valid range end still buffered despite malformed siblings');
+
 test_summary_and_exit();

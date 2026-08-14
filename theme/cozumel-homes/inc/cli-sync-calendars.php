@@ -132,6 +132,16 @@ class Cozumel_Sync_Calendars_Command {
     }
 
     private function email_failures(array $failures): void {
+        // Rate-limit alerts by failure signature — a persistent failure
+        // (stale URL, revoked feed, etc.) would otherwise re-email every
+        // hourly cron run indefinitely. A genuinely new/different failure
+        // set still alerts immediately.
+        $key = 'cozumel_sync_alert_' . md5(implode('|', $failures));
+        if (get_transient($key)) {
+            return;
+        }
+        set_transient($key, 1, DAY_IN_SECONDS);
+
         $to = 'fgmanta@gmail.com';
         $subject = 'Cozumel Homes: calendar sync failure';
         $body = "The calendar sync cron hit " . count($failures) . " failure(s):\n\n"

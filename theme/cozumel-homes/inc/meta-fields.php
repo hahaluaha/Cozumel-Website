@@ -153,10 +153,17 @@ function cozumel_save_meta($post_id) {
     if (array_key_exists('manual_blocked_dates', $_POST)) {
         $raw = wp_unslash($_POST['manual_blocked_dates']);
         $decoded = json_decode($raw, true);
-        // Only save if it's valid JSON representing an array — an admin
-        // typo shouldn't silently corrupt the stored value into garbage.
+        // Only save if it's valid JSON representing an array of well-formed
+        // {start,end} ranges — an admin typo shouldn't silently corrupt the
+        // stored value into garbage that later fatals the sync cron.
         if (is_array($decoded)) {
-            update_post_meta($post_id, 'manual_blocked_dates', wp_json_encode($decoded));
+            $clean = array_values(array_filter($decoded, function ($r) {
+                return is_array($r)
+                    && !empty($r['start']) && !empty($r['end'])
+                    && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $r['start'])
+                    && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $r['end']);
+            }));
+            update_post_meta($post_id, 'manual_blocked_dates', wp_json_encode($clean));
         }
     }
 
