@@ -15,11 +15,20 @@
 
             <h1 style="font-family:Georgia,serif;font-size:2.2rem;margin:0 0 8px"><?php the_title(); ?></h1>
 
-            <?php if ($walkthrough_id): ?>
+            <?php if ($walkthrough_id):
+                $video_url = wp_get_attachment_url($walkthrough_id);
+                $poster_url = wp_get_attachment_image_url(get_post_thumbnail_id(), 'large');
+                if (!$poster_url && $video_url) {
+                    $candidate_path = str_replace(content_url(), WP_CONTENT_DIR, preg_replace('/\.mp4$/i', '-poster.jpg', $video_url));
+                    if (file_exists($candidate_path)) {
+                        $poster_url = preg_replace('/\.mp4$/i', '-poster.jpg', $video_url);
+                    }
+                }
+            ?>
                 <div class="property-video--vertical">
                     <video controls preload="metadata" playsinline
-                           poster="<?php echo esc_url(wp_get_attachment_image_url(get_post_thumbnail_id(), 'large') ?: ''); ?>">
-                        <source src="<?php echo esc_url(wp_get_attachment_url($walkthrough_id)); ?>" type="video/mp4">
+                           poster="<?php echo esc_url($poster_url ?: ''); ?>">
+                        <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
                     </video>
                 </div>
             <?php endif; ?>
