@@ -54,8 +54,13 @@
         var selection = { start: null, end: null };
 
         fetch(apiUrl)
-            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                if (!res.ok) throw new Error('Availability request failed with status ' + res.status);
+                return res.json();
+            })
             .then(function (ranges) {
+                if (!Array.isArray(ranges)) throw new Error('Availability response was not an array');
+
                 var unavailableSet = buildUnavailableSet(ranges);
                 var now = new Date();
                 var grid = document.createElement('div');
@@ -88,6 +93,10 @@
                 });
 
                 redraw();
+            })
+            .catch(function (err) {
+                console.error('Cozumel availability calendar: failed to load availability data.', err);
+                root.innerHTML = '<p class="availability-calendar__error">Availability calendar unavailable right now — please use the form below.</p>';
             });
     }
 

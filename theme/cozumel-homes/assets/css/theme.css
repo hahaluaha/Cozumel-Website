@@ -82,6 +82,7 @@ body {
 .availability-calendar__day--available:hover { background: #cdeae4; }
 .availability-calendar__day--unavailable { background: #f2f2f2; color: #bbb; cursor: not-allowed; }
 .availability-calendar__day--selected { background: var(--color-turquoise, #2eb3c4); color: #fff; }
+.availability-calendar__error { color: var(--color-muted); font-size: 0.9rem; margin: 16px 0 24px; }
 .property-video--vertical { margin: 16px 0 24px; text-align: center; }
 .property-video--vertical video {
     width: 100%;
