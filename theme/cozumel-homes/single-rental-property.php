@@ -39,7 +39,10 @@
             <?php endif; ?>
 
             <div class="property-single__booking">
-                <?php /* Custom booking/availability calendar — added in Plan C (not yet designed) */ ?>
+                <div data-cozumel-availability-calendar
+                     data-property-id="<?php echo esc_attr(get_the_ID()); ?>"
+                     data-api-url="<?php echo esc_url(rest_url('cozumel/v1/availability/' . get_the_ID())); ?>">
+                </div>
                 <?php if ($airbnb_url): ?>
                     <a href="<?php echo esc_url($airbnb_url); ?>" class="btn btn--airbnb" target="_blank" rel="noopener noreferrer">Book on Airbnb</a>
                 <?php endif; ?>

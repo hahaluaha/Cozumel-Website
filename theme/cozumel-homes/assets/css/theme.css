@@ -72,6 +72,16 @@ body {
 .property-single__specs { color: var(--color-muted); }
 .property-single__rate { font-size: 1.5rem; font-weight: 700; color: var(--color-navy); }
 .property-single__booking { margin: 32px 0; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+
+.availability-calendar { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0 24px; }
+.availability-calendar__month h4 { margin: 0 0 8px; font-size: 1rem; }
+.availability-calendar__grid { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; }
+.availability-calendar__day { width: 32px; height: 32px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer; }
+.availability-calendar__day--empty { background: transparent; cursor: default; }
+.availability-calendar__day--available { background: #e8f5f2; color: var(--color-navy); }
+.availability-calendar__day--available:hover { background: #cdeae4; }
+.availability-calendar__day--unavailable { background: #f2f2f2; color: #bbb; cursor: not-allowed; }
+.availability-calendar__day--selected { background: var(--color-turquoise, #2eb3c4); color: #fff; }
 .property-video--vertical { margin: 16px 0 24px; text-align: center; }
 .property-video--vertical video {
     width: 100%;
