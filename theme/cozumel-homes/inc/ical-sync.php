@@ -28,3 +28,16 @@ function cozumel_ical_parse_vevents(string $ics_text): array {
 function cozumel_ical_date_to_iso(string $yyyymmdd): string {
     return substr($yyyymmdd, 0, 4) . '-' . substr($yyyymmdd, 4, 2) . '-' . substr($yyyymmdd, 6, 2);
 }
+
+function cozumel_ical_apply_buffer(array $ranges, int $buffer_days): array {
+    $buffered = [];
+    foreach ($ranges as $range) {
+        $end = new DateTime($range['end']);
+        $end->modify("+{$buffer_days} day" . ($buffer_days === 1 ? '' : 's'));
+        $buffered[] = [
+            'start' => $range['start'],
+            'end'   => $end->format('Y-m-d'),
+        ];
+    }
+    return $buffered;
+}
