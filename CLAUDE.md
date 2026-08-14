@@ -72,6 +72,39 @@ current plan is `.superpowers/sdd/progress.md` in this repo.
   discount need to surface fast. Every page should make it clear within ~5 seconds
   that it's a real, bookable Cozumel property, its price range, and how to contact.
 
+## Production Deployment (VPS)
+- Live at `https://cozumelhomes.net`, Hostinger VPS (Ubuntu 24.04, WordOps stack:
+  nginx + PHP-FPM + MySQL), theme at
+  `/var/www/cozumelhomes.net/htdocs/wp-content/themes/cozumel-homes`. SSH via
+  `~/.ssh/id_ed25519_cozumel_vps`, user `deploy`.
+- **No CI/CD — deploys are manual `scp` + `ssh` per file**, e.g.:
+  ```bash
+  scp -i ~/.ssh/id_ed25519_cozumel_vps theme/cozumel-homes/<file> deploy@2.25.104.105:/tmp/<file>
+  ssh -i ~/.ssh/id_ed25519_cozumel_vps deploy@2.25.104.105 \
+    "sudo cp /tmp/<file> /var/www/cozumelhomes.net/htdocs/wp-content/themes/cozumel-homes/<file> && \
+     sudo chown www-data:www-data /var/www/.../<file> && php -l /var/www/.../<file>"
+  ```
+  Local dev's theme directory is a symlink into this git repo (`~/Local
+  Sites/cozumel-homes/app/public/wp-content/themes/cozumel-homes` →
+  `theme/cozumel-homes`), so committing here does NOT automatically update
+  production — always deploy explicitly after pushing, or production silently
+  drifts from what's in git (happened 2026-08-14, see commit `be53f69`).
+- Outbound mail (`wp_mail()`) is routed through Google Workspace SMTP via a
+  `phpmailer_init` hook in `functions.php` — the VPS has no local MTA, so PHP's
+  default `mail()` always fails silently. Credentials
+  (`COZUMEL_SMTP_USER`/`COZUMEL_SMTP_PASS`) are constants in `wp-config.php` on
+  both local dev and production, never committed (git-ignored).
+
+## SwiftUI-adjacent WordPress gotcha
+- `get_permalink()` with no argument depends on WordPress's global `$post`,
+  which any `WP_Query` loop mutates via `the_post()`. `wp_reset_postdata()`
+  only restores it if the *main* query has at least one post — it's a silent
+  no-op otherwise (e.g. front page with zero blog posts). Code that calls
+  `get_permalink()` after a custom loop without knowing the main query state
+  can resolve to the wrong post entirely. `cozumel_render_inquiry_form()`'s
+  redirect hit this on the homepage (`inc/inquiry-form.php`) — fixed by
+  checking `is_front_page()` explicitly instead of trusting ambient `$post`.
+
 ## Out of Scope (per project preference)
 - Avoid WordPress plugins where a reasonable custom alternative exists (past
   experience: plugins are a common source of bloat/security risk). MotoPress and
