@@ -9,7 +9,7 @@ function cozumel_render_inquiry_form($property_name = '') {
     <form class="inquiry-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <input type="hidden" name="action" value="cozumel_inquiry">
         <?php wp_nonce_field('cozumel_inquiry', 'cozumel_inquiry_nonce'); ?>
-        <input type="hidden" name="redirect_to" value="<?php echo esc_url(get_permalink() ?: home_url('/')); ?>">
+        <input type="hidden" name="redirect_to" value="<?php echo esc_url(is_front_page() ? home_url('/') : (get_permalink() ?: home_url('/'))); ?>">
         <p style="position:absolute;left:-9999px" aria-hidden="true">
             <label>Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
         </p>
