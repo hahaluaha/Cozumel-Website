@@ -25,6 +25,25 @@ require_once get_stylesheet_directory() . '/inc/meta-fields.php';
 require_once get_stylesheet_directory() . '/inc/inquiry-form.php';
 require_once get_stylesheet_directory() . '/inc/dev-application-passwords.php';
 
+// Route wp_mail() through Google Workspace SMTP — the VPS has no local MTA,
+// so PHP's default mail() silently fails. Credentials come from constants
+// defined in wp-config.php (git-ignored), never committed here.
+function cozumel_phpmailer_smtp($phpmailer) {
+    if (!defined('COZUMEL_SMTP_USER') || !defined('COZUMEL_SMTP_PASS')) {
+        return;
+    }
+    $phpmailer->isSMTP();
+    $phpmailer->Host = 'smtp.gmail.com';
+    $phpmailer->Port = 587;
+    $phpmailer->SMTPAuth = true;
+    $phpmailer->SMTPSecure = 'tls';
+    $phpmailer->Username = COZUMEL_SMTP_USER;
+    $phpmailer->Password = COZUMEL_SMTP_PASS;
+    $phpmailer->From = COZUMEL_SMTP_USER;
+    $phpmailer->FromName = 'Cozumel Homes';
+}
+add_action('phpmailer_init', 'cozumel_phpmailer_smtp');
+
 function cozumel_enqueue_gallery_admin_assets($hook) {
     if ($hook !== 'post.php' && $hook !== 'post-new.php') return;
     $screen = get_current_screen();
