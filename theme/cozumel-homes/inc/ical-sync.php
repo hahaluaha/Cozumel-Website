@@ -41,3 +41,27 @@ function cozumel_ical_apply_buffer(array $ranges, int $buffer_days): array {
     }
     return $buffered;
 }
+
+function cozumel_ical_generate(array $ranges, string $calendar_name): string {
+    $lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//Cozumel Homes//Availability Sync//EN",
+        "X-WR-CALNAME:{$calendar_name}",
+    ];
+
+    foreach ($ranges as $i => $range) {
+        $start = str_replace('-', '', $range['start']);
+        $end   = str_replace('-', '', $range['end']);
+        $lines[] = "BEGIN:VEVENT";
+        $lines[] = "UID:cozumel-{$i}-{$start}@cozumelhomes.net";
+        $lines[] = "DTSTART;VALUE=DATE:{$start}";
+        $lines[] = "DTEND;VALUE=DATE:{$end}";
+        $lines[] = "SUMMARY:Unavailable";
+        $lines[] = "END:VEVENT";
+    }
+
+    $lines[] = "END:VCALENDAR";
+
+    return implode("\r\n", $lines) . "\r\n";
+}
