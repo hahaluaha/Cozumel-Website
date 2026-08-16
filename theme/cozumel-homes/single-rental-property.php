@@ -5,10 +5,11 @@
         $neighborhood     = get_post_meta(get_the_ID(), 'neighborhood', true);
         $address          = get_post_meta(get_the_ID(), 'address', true);
         $rate             = get_post_meta(get_the_ID(), 'base_rate', true);
+        $base_guests      = get_post_meta(get_the_ID(), 'base_guests', true);
+        $extra_guest_fee  = get_post_meta(get_the_ID(), 'extra_guest_fee', true);
         $guests           = get_post_meta(get_the_ID(), 'max_guests', true);
         $bedrooms         = get_post_meta(get_the_ID(), 'bedrooms', true);
         $bathrooms        = get_post_meta(get_the_ID(), 'bathrooms', true);
-        $airbnb_url       = get_post_meta(get_the_ID(), 'airbnb_listing_url', true);
         ?>
 
         <?php get_template_part('template-parts/carousel'); ?>
@@ -35,18 +36,18 @@
             <?php endif; ?>
 
             <?php if ($rate): ?>
-                <p class="property-single__rate">$<?php echo esc_html(number_format((float)$rate)); ?> / night</p>
-            <?php endif; ?>
-
-            <div class="property-single__booking">
-                <div data-cozumel-availability-calendar
-                     data-property-id="<?php echo esc_attr(get_the_ID()); ?>"
-                     data-api-url="<?php echo esc_url(rest_url('cozumel/v1/availability/' . get_the_ID())); ?>">
-                </div>
-                <?php if ($airbnb_url): ?>
-                    <a href="<?php echo esc_url($airbnb_url); ?>" class="btn btn--airbnb" target="_blank" rel="noopener noreferrer">Book on Airbnb</a>
+                <p class="property-single__rate">
+                    From $<?php echo esc_html(number_format((float)$rate)); ?> / night
+                    <?php if ($base_guests): ?>
+                        (up to <?php echo esc_html($base_guests); ?> guests)
+                    <?php endif; ?>
+                </p>
+                <?php if ($extra_guest_fee): ?>
+                    <p class="property-single__extra-guest-fee">
+                        +$<?php echo esc_html(number_format((float)$extra_guest_fee)); ?> / night per extra guest
+                    </p>
                 <?php endif; ?>
-            </div>
+            <?php endif; ?>
 
             <div class="property-single__description">
                 <?php the_content(); ?>
@@ -60,7 +61,10 @@
 
             <div class="property-single__inquiry">
                 <h3>Have a question or want to book?</h3>
-                <?php cozumel_render_inquiry_form(get_the_title()); ?>
+                <?php cozumel_render_inquiry_form(get_the_title(), [
+                    'property_id' => get_the_ID(),
+                    'api_url'     => rest_url('cozumel/v1/availability/' . get_the_ID()),
+                ]); ?>
             </div>
 
         </div>

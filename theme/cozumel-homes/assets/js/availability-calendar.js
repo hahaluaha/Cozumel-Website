@@ -1,8 +1,14 @@
 (function () {
     'use strict';
 
+    var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function toISO(date) { return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()); }
+    function formatDisplay(iso) {
+        var d = new Date(iso + 'T00:00:00');
+        return monthNames[d.getMonth()].slice(0, 3) + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
 
     function buildUnavailableSet(ranges) {
         var set = new Set();
@@ -27,8 +33,7 @@
         return true;
     }
 
-    function renderMonth(container, year, month, unavailableSet, selection, onPick) {
-        var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function renderMonth(container, year, month, unavailableSet, selection, minDate) {
         var first = new Date(year, month, 1);
         var daysInMonth = new Date(year, month + 1, 0).getDate();
         var startWeekday = first.getDay();
@@ -39,29 +44,126 @@
         for (var i = 0; i < startWeekday; i++) {
             html += '<span class="availability-calendar__day availability-calendar__day--empty"></span>';
         }
-        var today = new Date();
-        today.setHours(0, 0, 0, 0);
         for (var d = 1; d <= daysInMonth; d++) {
             var date = new Date(year, month, d);
             var iso = toISO(date);
-            var isPast = date < today;
+            var isBeforeMin = date < minDate;
             var isUnavailable = unavailableSet.has(iso);
             var classes = ['availability-calendar__day'];
-            if (isPast || isUnavailable) classes.push('availability-calendar__day--unavailable');
+            if (isBeforeMin || isUnavailable) classes.push('availability-calendar__day--unavailable');
             else classes.push('availability-calendar__day--available');
             if (selection.start === iso || selection.end === iso) classes.push('availability-calendar__day--selected');
-            html += '<button type="button" class="' + classes.join(' ') + '" data-date="' + iso + '"' + (isPast || isUnavailable ? ' disabled' : '') + '>' + d + '</button>';
+            html += '<button type="button" class="' + classes.join(' ') + '" data-date="' + iso + '"' + (isBeforeMin || isUnavailable ? ' disabled' : '') + '>' + d + '</button>';
         }
         html += '</div></div>';
         container.innerHTML += html;
     }
 
     function init(root) {
-        var propertyId = root.getAttribute('data-property-id');
         var apiUrl = root.getAttribute('data-api-url');
-        var checkinInput = document.querySelector('[name="checkin_date"]');
-        var checkoutInput = document.querySelector('[name="checkout_date"]');
+        var checkinTrigger = root.querySelector('[data-role="checkin"]');
+        var checkoutTrigger = root.querySelector('[data-role="checkout"]');
+        var checkinInput = root.querySelector('input[name="checkin_date"]');
+        var checkoutInput = root.querySelector('input[name="checkout_date"]');
+        var popover = root.querySelector('.availability-calendar-popover');
+        var form = root.closest('form');
+        var restOfForm = form ? form.querySelector('.inquiry-form__rest') : null;
+
         var selection = { start: null, end: null };
+        var mode = null;
+        var unavailableSet = new Set();
+        var viewMonthOffset = 0;
+
+        function today() {
+            var t = new Date();
+            t.setHours(0, 0, 0, 0);
+            return t;
+        }
+
+        function minDateForMode() {
+            if (mode === 'checkout' && selection.start) {
+                var d = new Date(selection.start + 'T00:00:00');
+                d.setDate(d.getDate() + 1);
+                return d;
+            }
+            return today();
+        }
+
+        function redraw() {
+            var grid = popover.querySelector('.availability-calendar__grid-wrap');
+            grid.innerHTML = '';
+            var base = today();
+            var minDate = minDateForMode();
+            for (var m = 0; m < 3; m++) {
+                var view = new Date(base.getFullYear(), base.getMonth() + viewMonthOffset + m, 1);
+                renderMonth(grid, view.getFullYear(), view.getMonth(), unavailableSet, selection, minDate);
+            }
+        }
+
+        function openPopover(newMode) {
+            if (newMode === 'checkout' && !selection.start) return;
+            mode = newMode;
+            if (mode === 'checkin') {
+                selection = { start: null, end: null };
+                checkinInput.value = '';
+                checkinTrigger.textContent = 'Select date';
+                checkoutInput.value = '';
+                checkoutTrigger.textContent = 'Select date';
+                checkoutTrigger.disabled = true;
+                if (restOfForm) restOfForm.classList.add('is-hidden');
+            }
+            viewMonthOffset = 0;
+            popover.classList.remove('is-hidden');
+            redraw();
+        }
+
+        function closePopover() {
+            popover.classList.add('is-hidden');
+            mode = null;
+        }
+
+        function handlePick(iso) {
+            if (mode === 'checkin') {
+                selection.start = iso;
+                selection.end = null;
+                checkinInput.value = iso;
+                checkinTrigger.textContent = formatDisplay(iso);
+                checkoutTrigger.disabled = false;
+                closePopover();
+            } else if (mode === 'checkout') {
+                if (iso <= selection.start || !rangeIsClear(selection.start, iso, unavailableSet)) return;
+                selection.end = iso;
+                checkoutInput.value = iso;
+                checkoutTrigger.textContent = formatDisplay(iso);
+                closePopover();
+                if (restOfForm) restOfForm.classList.remove('is-hidden');
+            }
+        }
+
+        popover.innerHTML =
+            '<div class="availability-calendar__nav">' +
+                '<button type="button" class="availability-calendar__nav-btn" data-nav="prev">‹</button>' +
+                '<button type="button" class="availability-calendar__nav-btn" data-nav="next">›</button>' +
+                '<button type="button" class="availability-calendar__close" data-nav="close">Close</button>' +
+            '</div>' +
+            '<div class="availability-calendar__grid-wrap"></div>';
+
+        popover.addEventListener('click', function (e) {
+            var dayBtn = e.target.closest('.availability-calendar__day--available, .availability-calendar__day--selected');
+            if (dayBtn) { handlePick(dayBtn.getAttribute('data-date')); return; }
+            var navBtn = e.target.closest('[data-nav]');
+            if (!navBtn) return;
+            var dir = navBtn.getAttribute('data-nav');
+            if (dir === 'prev') viewMonthOffset = Math.max(0, viewMonthOffset - 1);
+            else if (dir === 'next') viewMonthOffset += 1;
+            else if (dir === 'close') { closePopover(); return; }
+            redraw();
+        });
+
+        checkinTrigger.addEventListener('click', function () { openPopover('checkin'); });
+        checkoutTrigger.addEventListener('click', function () {
+            if (!checkoutTrigger.disabled) openPopover('checkout');
+        });
 
         fetch(apiUrl)
             .then(function (res) {
@@ -70,67 +172,13 @@
             })
             .then(function (ranges) {
                 if (!Array.isArray(ranges)) throw new Error('Availability response was not an array');
-
-                var unavailableSet = buildUnavailableSet(ranges);
-                var now = new Date();
-                var viewMonthOffset = 0;
-                var grid = document.createElement('div');
-                grid.className = 'availability-calendar';
-                var nav = document.createElement('div');
-                nav.className = 'availability-calendar__nav';
-                nav.innerHTML =
-                    '<button type="button" class="availability-calendar__nav-btn" data-nav="prev">‹</button>' +
-                    '<button type="button" class="availability-calendar__nav-btn" data-nav="next">›</button>';
-                root.appendChild(nav);
-                root.appendChild(grid);
-
-                function redraw() {
-                    grid.innerHTML = '';
-                    for (var m = 0; m < 3; m++) {
-                        var view = new Date(now.getFullYear(), now.getMonth() + viewMonthOffset + m, 1);
-                        renderMonth(grid, view.getFullYear(), view.getMonth(), unavailableSet, selection, handlePick);
-                    }
-                }
-
-                function handlePick(iso) {
-                    if (!selection.start || (selection.start && selection.end)) {
-                        selection = { start: iso, end: null };
-                    } else if (iso > selection.start) {
-                        if (rangeIsClear(selection.start, iso, unavailableSet)) {
-                            selection.end = iso;
-                        } else {
-                            selection = { start: iso, end: null };
-                        }
-                    } else {
-                        selection = { start: iso, end: null };
-                    }
-                    if (checkinInput) checkinInput.value = selection.start || '';
-                    if (checkoutInput) checkoutInput.value = selection.end || '';
-                    redraw();
-                }
-
-                grid.addEventListener('click', function (e) {
-                    var btn = e.target.closest('.availability-calendar__day--available, .availability-calendar__day--selected');
-                    if (btn) handlePick(btn.getAttribute('data-date'));
-                });
-
-                nav.addEventListener('click', function (e) {
-                    var btn = e.target.closest('.availability-calendar__nav-btn');
-                    if (!btn) return;
-                    var dir = btn.getAttribute('data-nav');
-                    if (dir === 'prev') {
-                        viewMonthOffset = Math.max(0, viewMonthOffset - 1);
-                    } else if (dir === 'next') {
-                        viewMonthOffset += 1;
-                    }
-                    redraw();
-                });
-
-                redraw();
+                unavailableSet = buildUnavailableSet(ranges);
             })
             .catch(function (err) {
                 console.error('Cozumel availability calendar: failed to load availability data.', err);
-                root.innerHTML = '<p class="availability-calendar__error">Availability calendar unavailable right now — please use the form below.</p>';
+                checkinTrigger.disabled = true;
+                checkinTrigger.textContent = 'Unavailable — use the form below';
+                if (restOfForm) restOfForm.classList.remove('is-hidden');
             });
     }
 

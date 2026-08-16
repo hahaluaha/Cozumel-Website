@@ -1,5 +1,5 @@
 <?php
-function cozumel_render_inquiry_form($property_name = '') {
+function cozumel_render_inquiry_form($property_name = '', $availability = null) {
     if (isset($_GET['inquiry']) && $_GET['inquiry'] === 'sent') {
         echo '<p style="color:#2a6fa8;font-weight:600">Thanks — your message has been sent. We\'ll get back to you soon.</p>';
     } elseif (isset($_GET['inquiry']) && $_GET['inquiry'] === 'error') {
@@ -13,15 +13,40 @@ function cozumel_render_inquiry_form($property_name = '') {
         <p style="position:absolute;left:-9999px" aria-hidden="true">
             <label>Leave this field empty<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
         </p>
+
+        <?php if ($availability): ?>
+            <div class="cozumel-date-fields"
+                 data-cozumel-availability-calendar
+                 data-property-id="<?php echo esc_attr($availability['property_id']); ?>"
+                 data-api-url="<?php echo esc_url($availability['api_url']); ?>">
+                <p><label>Preferred Check-in Date<br>
+                    <button type="button" class="date-trigger" data-role="checkin">Select date</button>
+                </label></p>
+                <p><label>Preferred Check-out Date<br>
+                    <button type="button" class="date-trigger" data-role="checkout" disabled>Select date</button>
+                </label></p>
+                <input type="hidden" name="checkin_date">
+                <input type="hidden" name="checkout_date">
+                <div class="availability-calendar-popover is-hidden"></div>
+            </div>
+            <div class="inquiry-form__rest is-hidden">
+        <?php endif; ?>
+
         <p><label>Your Name<br><input type="text" name="your_name" required></label></p>
         <p><label>Email Address<br><input type="email" name="your_email" required></label></p>
         <p><label>Phone Number<br><input type="tel" name="your_phone"></label></p>
         <p><label>Property of Interest<br><input type="text" name="property_name" value="<?php echo esc_attr($property_name); ?>"></label></p>
-        <p><label>Preferred Check-in Date<br><input type="date" name="checkin_date"></label></p>
-        <p><label>Preferred Check-out Date<br><input type="date" name="checkout_date"></label></p>
+        <?php if (!$availability): ?>
+            <p><label>Preferred Check-in Date<br><input type="date" name="checkin_date"></label></p>
+            <p><label>Preferred Check-out Date<br><input type="date" name="checkout_date"></label></p>
+        <?php endif; ?>
         <p><label>Number of Guests<br><input type="number" name="guests" min="1" max="10"></label></p>
         <p><label>Message<br><textarea name="your_message" rows="5"></textarea></label></p>
         <p><button type="submit" class="btn btn--primary">Send Inquiry</button></p>
+
+        <?php if ($availability): ?>
+            </div>
+        <?php endif; ?>
     </form>
     <?php
 }

@@ -6,6 +6,7 @@ function cozumel_register_meta_fields() {
         'max_guests', 'bedrooms', 'bathrooms',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
         'manual_blocked_dates', 'airbnb_blocked_dates',
+        'base_guests', 'extra_guest_fee',
     ];
     foreach ($rental_fields as $field) {
         register_post_meta('rental-property', $field, [
@@ -74,6 +75,8 @@ function cozumel_rental_meta_box_html($post) {
     cozumel_meta_field('neighborhood',        'Neighborhood', $post->ID);
     cozumel_meta_field('address',             'Address', $post->ID);
     cozumel_meta_field('base_rate',           'Nightly Rate (USD)', $post->ID);
+    cozumel_meta_field('base_guests',         'Base Guests (included at the Nightly Rate)', $post->ID);
+    cozumel_meta_field('extra_guest_fee',     'Extra Guest Fee (USD per night, per guest over Base Guests)', $post->ID);
     cozumel_meta_field('status',              'Status (active / inactive / maintenance)', $post->ID);
     cozumel_meta_field('max_guests',          'Max Guests', $post->ID);
     cozumel_meta_field('bedrooms',            'Bedrooms', $post->ID);
@@ -140,6 +143,7 @@ function cozumel_save_meta($post_id) {
         'max_guests', 'bedrooms', 'bathrooms',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
         'asking_price', 'listing_url', 'notes',
+        'base_guests', 'extra_guest_fee',
     ];
     foreach ($all_fields as $field) {
         if (array_key_exists($field, $_POST)) {
