@@ -398,3 +398,49 @@ body {
     .hero__ctas { flex-direction: column; gap: 6px; }
     .hero__ctas .btn { padding: 8px 14px; font-size: 0.76rem; }
 }
+
+/* Host card — "Tide Reveal": a turquoise wave recedes off the host photo
+   as the card scrolls into view, echoing the homepage hero's wave motif. */
+.host-card {
+    display: flex; flex-direction: column; gap: 24px;
+    max-width: 900px; margin: 48px auto; padding: 0 24px;
+}
+.host-card__photo-wrap {
+    position: relative; overflow: hidden; border-radius: 12px;
+    width: 100%; aspect-ratio: 4 / 3; box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+}
+.host-card__photo { width: 100%; height: 100%; object-fit: cover; object-position: top center; display: block; }
+.host-card__wave {
+    position: absolute; inset: 0;
+    background: linear-gradient(120deg, var(--color-turquoise-deep), var(--color-turquoise) 60%, #7fd8e2);
+    transform: translateX(0);
+    transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.host-card__eyebrow {
+    font-family: var(--font-sans); text-transform: uppercase; letter-spacing: 0.08em;
+    font-size: 0.8rem; font-weight: 600; color: var(--color-turquoise-deep); margin: 0 0 8px;
+}
+.host-card__title { font-family: var(--font-primary); font-size: 1.7rem; margin: 0 0 12px; color: var(--color-navy); }
+.host-card__quote { font-size: 1.05rem; line-height: 1.6; color: #444; margin: 0 0 16px; }
+.host-card__link { font-weight: 600; color: var(--color-turquoise-deep); text-decoration: none; }
+.host-card__link:hover { text-decoration: underline; }
+
+.host-card__body { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease, transform 0.6s ease; transition-delay: 0.15s; }
+.host-card.is-visible .host-card__wave { transform: translateX(105%); }
+.host-card.is-visible .host-card__body { opacity: 1; transform: translateY(0); }
+
+.host-card--compact { max-width: 760px; margin: 40px auto; }
+.host-card--compact .host-card__photo-wrap { aspect-ratio: 16 / 9; }
+.host-card--compact .host-card__title { font-size: 1.4rem; }
+
+@media (min-width: 700px) {
+    .host-card { flex-direction: row; align-items: center; }
+    .host-card__photo-wrap { width: 42%; flex-shrink: 0; aspect-ratio: 3 / 4; }
+    .host-card--compact .host-card__photo-wrap { width: 38%; aspect-ratio: 4 / 3; }
+    .host-card__body { flex: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .host-card__wave { transition: none; }
+    .host-card__body { transition: none; }
+}

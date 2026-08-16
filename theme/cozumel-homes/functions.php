@@ -28,6 +28,16 @@ function cozumel_enqueue_styles() {
             true
         );
     }
+
+    if (is_front_page() || is_singular('rental-property')) {
+        wp_enqueue_script(
+            'cozumel-host-reveal',
+            get_stylesheet_directory_uri() . '/assets/js/host-reveal.js',
+            [],
+            cozumel_asset_version('/assets/js/host-reveal.js'),
+            true
+        );
+    }
 }
 add_action('wp_enqueue_scripts', 'cozumel_enqueue_styles');
 

@@ -36,22 +36,6 @@
         </svg>
     </section>
 
-    <!-- About Kelley -->
-    <section class="section" style="border-bottom:1px solid #eee">
-        <div style="max-width:760px">
-            <h2 class="section__title">Boutique Property Management</h2>
-            <p style="font-size:1.1rem;line-height:1.8;color:#444">
-                Kelley Morgan Gonzalez brings over 20 years of island experience to every stay.
-                Whether you're planning a diving escape, a family holiday, or searching for your
-                dream property in Cozumel, you'll receive friendly, personalized service from
-                someone who truly knows this island.
-            </p>
-            <p style="color:#6b6b6b">
-                <a href="mailto:home@cozumelhomes.net">home@cozumelhomes.net</a>
-            </p>
-        </div>
-    </section>
-
     <!-- Rental Properties -->
     <section class="section">
         <h2 class="section__title">Vacation Rentals</h2>
@@ -74,6 +58,8 @@
         </div>
         <p style="margin-top:24px"><a href="/rentals/" class="btn btn--outline">View All Rentals</a></p>
     </section>
+
+    <?php get_template_part('template-parts/host-card', null, ['compact' => true]); ?>
 
     <!-- For Sale -->
     <?php

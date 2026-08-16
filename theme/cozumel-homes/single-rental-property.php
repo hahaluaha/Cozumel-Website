@@ -59,6 +59,8 @@
 
             <?php get_template_part('template-parts/map'); ?>
 
+            <?php get_template_part('template-parts/host-card'); ?>
+
             <div class="property-single__inquiry">
                 <h3>Have a question or want to book?</h3>
                 <?php cozumel_render_inquiry_form(get_the_title(), [
