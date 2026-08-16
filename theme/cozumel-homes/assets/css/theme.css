@@ -93,11 +93,12 @@ body {
 .is-hidden { display: none !important; }
 .date-trigger {
     display: inline-block; padding: 10px 20px; margin-top: 4px;
-    border: none; border-radius: 999px; background: #e8f5f2; color: var(--color-navy);
-    font: inherit; font-weight: 600; cursor: pointer;
+    border: none; border-radius: 999px; color: var(--color-white);
+    background: linear-gradient(135deg, var(--color-turquoise), var(--color-turquoise-deep));
+    font: inherit; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
 }
-.date-trigger:hover:not(:disabled) { background: #cdeae4; }
-.date-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
+.date-trigger:hover:not(:disabled) { opacity: 0.88; }
+.date-trigger:disabled { opacity: 0.4; cursor: not-allowed; }
 .availability-calendar-popover {
     margin: 8px 0 16px; padding: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
