@@ -111,8 +111,13 @@
                 checkoutTrigger.textContent = 'Select date';
                 checkoutTrigger.disabled = true;
                 if (restOfForm) restOfForm.classList.add('is-hidden');
+                viewMonthOffset = 0;
+            } else {
+                var t = today();
+                var startDate = new Date(selection.start + 'T00:00:00');
+                var monthDiff = (startDate.getFullYear() - t.getFullYear()) * 12 + (startDate.getMonth() - t.getMonth());
+                viewMonthOffset = Math.max(0, monthDiff);
             }
-            viewMonthOffset = 0;
             popover.classList.remove('is-hidden');
             redraw();
         }
@@ -160,10 +165,15 @@
             redraw();
         });
 
-        checkinTrigger.addEventListener('click', function () { openPopover('checkin'); });
+        checkinTrigger.addEventListener('click', function () {
+            if (!checkinTrigger.disabled) openPopover('checkin');
+        });
         checkoutTrigger.addEventListener('click', function () {
             if (!checkoutTrigger.disabled) openPopover('checkout');
         });
+
+        checkinTrigger.disabled = true;
+        checkinTrigger.textContent = 'Loading dates…';
 
         fetch(apiUrl)
             .then(function (res) {
@@ -173,11 +183,24 @@
             .then(function (ranges) {
                 if (!Array.isArray(ranges)) throw new Error('Availability response was not an array');
                 unavailableSet = buildUnavailableSet(ranges);
+                checkinTrigger.disabled = false;
+                checkinTrigger.textContent = 'Select date';
             })
             .catch(function (err) {
                 console.error('Cozumel availability calendar: failed to load availability data.', err);
-                checkinTrigger.disabled = true;
-                checkinTrigger.textContent = 'Unavailable — use the form below';
+                [checkinTrigger, checkoutTrigger].forEach(function (trigger, i) {
+                    var input = i === 0 ? checkinInput : checkoutInput;
+                    var label = trigger.closest('label');
+                    input.type = 'date';
+                    input.disabled = false;
+                    input.style.display = 'block';
+                    input.style.marginTop = '4px';
+                    if (label) {
+                        input.setAttribute('aria-label', label.textContent.trim());
+                        label.insertBefore(input, trigger);
+                    }
+                    trigger.remove();
+                });
                 if (restOfForm) restOfForm.classList.remove('is-hidden');
             });
     }

@@ -70,7 +70,6 @@ body {
 .property-single__neighborhood { color: var(--color-muted); font-size: 1.1rem; }
 .property-single__specs { color: var(--color-muted); }
 .property-single__rate { font-size: 1.5rem; font-weight: 700; color: var(--color-navy); }
-.property-single__booking { margin: 32px 0; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
 
 .availability-calendar__nav { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 8px; }
 .availability-calendar__nav-btn { width: 32px; height: 32px; border: none; border-radius: 4px; background: #e8f5f2; color: var(--color-navy); font-size: 1rem; cursor: pointer; }
