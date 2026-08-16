@@ -92,9 +92,11 @@ body {
 
 .is-hidden { display: none !important; }
 .date-trigger {
-    display: block; width: 100%; text-align: left; padding: 10px 12px; margin-top: 4px;
-    border: 1px solid #ccc; border-radius: 4px; background: #fff; font: inherit; cursor: pointer;
+    display: inline-block; padding: 10px 20px; margin-top: 4px;
+    border: none; border-radius: 999px; background: #e8f5f2; color: var(--color-navy);
+    font: inherit; font-weight: 600; cursor: pointer;
 }
+.date-trigger:hover:not(:disabled) { background: #cdeae4; }
 .date-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
 .availability-calendar-popover {
     margin: 8px 0 16px; padding: 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
