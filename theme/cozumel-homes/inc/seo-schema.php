@@ -48,11 +48,29 @@ function cozumel_local_business_schema(): array {
     ];
 }
 
+function cozumel_article_schema(int $post_id): array {
+    return [
+        '@context'      => 'https://schema.org',
+        '@type'         => 'Article',
+        'headline'      => get_the_title($post_id),
+        'datePublished' => get_the_date('Y-m-d', $post_id),
+        'author'        => [
+            '@type' => 'Person',
+            'name'  => get_the_author_meta('display_name'),
+        ],
+    ];
+}
+
 if (function_exists('add_action')) {
     add_action('wp_head', function () {
         if (is_singular('rental-property')) {
             $schema = cozumel_lodging_business_schema(get_the_ID());
             echo '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>' . "\n";
+        }
+
+        if (is_single() && get_post_type() === 'post') {
+            $article_schema = cozumel_article_schema(get_the_ID());
+            echo '<script type="application/ld+json">' . wp_json_encode($article_schema) . '</script>' . "\n";
         }
 
         $business_schema = cozumel_local_business_schema();

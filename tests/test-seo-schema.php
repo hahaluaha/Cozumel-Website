@@ -15,6 +15,12 @@ function get_the_title($post_id) {
 function get_permalink($post_id) {
     return "https://cozumelhomes.net/rentals/test-property-{$post_id}/";
 }
+function get_the_date($format, $post_id) {
+    return '2026-08-16';
+}
+function get_the_author_meta($field, $user_id = null) {
+    return 'Kelley';
+}
 function wp_get_attachment_image_url($attachment_id, $size) {
     return "https://cozumelhomes.net/wp-content/uploads/img-{$attachment_id}.jpg";
 }
@@ -60,5 +66,15 @@ assert_equal($business['name'], 'Cozumel Homes', 'sets the business name');
 assert_equal($business['url'], 'https://cozumelhomes.net', 'sets the site URL');
 assert_equal($business['address']['addressLocality'], 'Cozumel', 'nests Cozumel as the locality');
 assert_equal($business['address']['addressCountry'], 'MX', 'nests MX as the country');
+
+// Article schema for blog posts
+$__test_post_titles[44] = 'Meet Your Host: Kelley';
+$article = cozumel_article_schema(44);
+assert_equal($article['@context'], 'https://schema.org', 'sets schema.org context');
+assert_equal($article['@type'], 'Article', 'sets Article type');
+assert_equal($article['headline'], 'Meet Your Host: Kelley', 'uses the post title as headline');
+assert_equal($article['datePublished'], '2026-08-16', 'uses get_the_date as datePublished');
+assert_equal($article['author']['@type'], 'Person', 'nests a Person author');
+assert_equal($article['author']['name'], 'Kelley', 'uses get_the_author_meta as author name');
 
 test_summary_and_exit();
