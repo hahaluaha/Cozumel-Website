@@ -32,3 +32,18 @@ function cozumel_lodging_business_schema(int $post_id): array {
         'image'      => $images,
     ];
 }
+
+function cozumel_local_business_schema(): array {
+    return [
+        '@context' => 'https://schema.org',
+        '@type'    => 'LocalBusiness',
+        'name'     => 'Cozumel Homes',
+        'url'      => 'https://cozumelhomes.net',
+        'address'  => [
+            '@type'           => 'PostalAddress',
+            'addressLocality' => 'Cozumel',
+            'addressRegion'   => 'Quintana Roo',
+            'addressCountry'  => 'MX',
+        ],
+    ];
+}

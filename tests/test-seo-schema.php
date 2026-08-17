@@ -52,4 +52,13 @@ $__test_post_titles[43] = 'Test Property No Photos';
 $no_photos = cozumel_lodging_business_schema(43);
 assert_equal($no_photos['image'], [], 'empty gallery_ids produces an empty image array, not a crash');
 
+// Site-wide LocalBusiness schema
+$business = cozumel_local_business_schema();
+assert_equal($business['@context'], 'https://schema.org', 'sets schema.org context');
+assert_equal($business['@type'], 'LocalBusiness', 'sets LocalBusiness type');
+assert_equal($business['name'], 'Cozumel Homes', 'sets the business name');
+assert_equal($business['url'], 'https://cozumelhomes.net', 'sets the site URL');
+assert_equal($business['address']['addressLocality'], 'Cozumel', 'nests Cozumel as the locality');
+assert_equal($business['address']['addressCountry'], 'MX', 'nests MX as the country');
+
 test_summary_and_exit();
