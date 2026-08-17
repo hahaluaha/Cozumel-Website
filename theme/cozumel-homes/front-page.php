@@ -3,9 +3,9 @@
 
     <!-- Hero -->
     <section class="hero">
-        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 130, 'full' ) ); ?>" alt="Nah Ha 101 sunset pool"></div>
-        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 131, 'full' ) ); ?>" alt="Cool Caribbean Views ocean view"></div>
-        <div class="hero__slide"><img src="<?php echo esc_url( wp_get_attachment_image_url( 63, 'full' ) ); ?>" alt="Casa Bohemia living and kitchen area"></div>
+        <div class="hero__slide"><?php echo wp_get_attachment_image( 130, 'large', false, [ 'alt' => 'Nah Ha 101 sunset pool', 'sizes' => '100vw' ] ); ?></div>
+        <div class="hero__slide"><?php echo wp_get_attachment_image( 131, 'large', false, [ 'alt' => 'Cool Caribbean Views ocean view', 'sizes' => '100vw' ] ); ?></div>
+        <div class="hero__slide"><?php echo wp_get_attachment_image( 63, 'large', false, [ 'alt' => 'Casa Bohemia living and kitchen area', 'sizes' => '100vw' ] ); ?></div>
         <div class="hero__scrim"></div>
 
         <div class="hero__panel">
