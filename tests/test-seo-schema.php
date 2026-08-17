@@ -1,0 +1,55 @@
+<?php
+require_once __DIR__ . '/test-helpers.php';
+
+// Stub the WordPress functions this pure logic depends on, so the test runs
+// with plain `php` and no WordPress bootstrap — same approach the calendar
+// sync tests use by keeping WP glue out of the pure functions entirely.
+function get_post_meta($post_id, $key, $single = false) {
+    global $__test_post_meta;
+    return $__test_post_meta[$post_id][$key] ?? '';
+}
+function get_the_title($post_id) {
+    global $__test_post_titles;
+    return $__test_post_titles[$post_id] ?? '';
+}
+function get_permalink($post_id) {
+    return "https://cozumelhomes.net/rentals/test-property-{$post_id}/";
+}
+function wp_get_attachment_image_url($attachment_id, $size) {
+    return "https://cozumelhomes.net/wp-content/uploads/img-{$attachment_id}.jpg";
+}
+
+require_once __DIR__ . '/../theme/cozumel-homes/inc/seo-schema.php';
+
+global $__test_post_meta, $__test_post_titles;
+$__test_post_titles[42] = "Cozumel's Nah Ha Condominium 101";
+$__test_post_meta[42] = [
+    'address'      => 'North Shore Highway Km 3.3',
+    'neighborhood' => 'North Shore',
+    'base_rate'    => '325',
+    'max_guests'   => '6',
+    'gallery_ids'  => [101, 102],
+];
+
+$schema = cozumel_lodging_business_schema(42);
+
+assert_equal($schema['@context'], 'https://schema.org', 'sets schema.org context');
+assert_equal($schema['@type'], 'LodgingBusiness', 'sets LodgingBusiness type');
+assert_equal($schema['name'], "Cozumel's Nah Ha Condominium 101", 'uses the post title as name');
+assert_equal($schema['url'], 'https://cozumelhomes.net/rentals/test-property-42/', 'uses the permalink as url');
+assert_equal($schema['address']['@type'], 'PostalAddress', 'nests a PostalAddress');
+assert_equal($schema['address']['streetAddress'], 'North Shore Highway Km 3.3', 'uses the address meta field');
+assert_equal($schema['address']['addressLocality'], 'Cozumel', 'hardcodes Cozumel as the locality');
+assert_equal($schema['address']['addressRegion'], 'Quintana Roo', 'hardcodes Quintana Roo as the region');
+assert_equal($schema['address']['addressCountry'], 'MX', 'hardcodes MX as the country');
+assert_equal($schema['priceRange'], '$325', 'formats base_rate as a price range string');
+assert_equal(count($schema['image']), 2, 'includes one image URL per gallery_ids entry');
+assert_equal($schema['image'][0], 'https://cozumelhomes.net/wp-content/uploads/img-101.jpg', 'first image URL');
+
+// Missing gallery_ids doesn't crash — empty image array instead
+$__test_post_meta[43] = ['address' => 'Test St', 'neighborhood' => 'Downtown', 'base_rate' => '180', 'max_guests' => '4'];
+$__test_post_titles[43] = 'Test Property No Photos';
+$no_photos = cozumel_lodging_business_schema(43);
+assert_equal($no_photos['image'], [], 'empty gallery_ids produces an empty image array, not a crash');
+
+test_summary_and_exit();

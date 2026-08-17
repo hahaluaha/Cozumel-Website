@@ -53,6 +53,7 @@ require_once get_stylesheet_directory() . '/inc/cli-sync-calendars.php';
 require_once get_stylesheet_directory() . '/inc/ical-sync.php';
 require_once get_stylesheet_directory() . '/inc/rest-availability.php';
 require_once get_stylesheet_directory() . '/inc/seo-technical.php';
+require_once get_stylesheet_directory() . '/inc/seo-schema.php';
 
 // Route wp_mail() through Google Workspace SMTP — the VPS has no local MTA,
 // so PHP's default mail() silently fails. Credentials come from constants
