@@ -47,3 +47,15 @@ function cozumel_local_business_schema(): array {
         ],
     ];
 }
+
+if (function_exists('add_action')) {
+    add_action('wp_head', function () {
+        if (is_singular('rental-property')) {
+            $schema = cozumel_lodging_business_schema(get_the_ID());
+            echo '<script type="application/ld+json">' . wp_json_encode($schema) . '</script>' . "\n";
+        }
+
+        $business_schema = cozumel_local_business_schema();
+        echo '<script type="application/ld+json">' . wp_json_encode($business_schema) . '</script>' . "\n";
+    });
+}
