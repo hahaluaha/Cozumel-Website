@@ -11,6 +11,28 @@ function cozumel_robots_txt_add_sitemap(string $output): string {
     return rtrim($output) . "\n" . $sitemap_line . "\n";
 }
 
+function cozumel_ga4_script_tag(string $measurement_id): string {
+    $id = esc_js($measurement_id);
+    return <<<HTML
+<script async src="https://www.googletagmanager.com/gtag/js?id={$id}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{$id}');
+</script>
+HTML;
+}
+
+// Real measurement ID from Step 1 — replace G-XXXXXXXXXX before deploying.
+define('COZUMEL_GA4_MEASUREMENT_ID', 'G-XXXXXXXXXX');
+
 if (function_exists('add_filter')) {
     add_filter('robots_txt', 'cozumel_robots_txt_add_sitemap', 10, 1);
+}
+
+if (function_exists('add_action')) {
+    add_action('wp_head', function () {
+        echo cozumel_ga4_script_tag(COZUMEL_GA4_MEASUREMENT_ID);
+    });
 }

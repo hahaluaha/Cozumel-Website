@@ -20,3 +20,10 @@ function test_summary_and_exit(): void {
     echo "\nAll tests passed\n";
     exit(0);
 }
+
+// Mock WordPress functions for standalone CLI tests (not available in plain PHP)
+if (!function_exists('esc_js')) {
+    function esc_js(string $text): string {
+        return $text;
+    }
+}

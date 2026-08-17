@@ -24,4 +24,10 @@ assert_equal(
     'does not duplicate the sitemap directive'
 );
 
+// GA4 script tag
+$tag = cozumel_ga4_script_tag('G-TEST12345');
+assert_equal(strpos($tag, "gtag/js?id=G-TEST12345") !== false, true, 'loads gtag.js with the measurement ID');
+assert_equal(strpos($tag, "gtag('config', 'G-TEST12345')") !== false, true, 'configures gtag with the measurement ID');
+assert_equal(strpos($tag, '<script') !== false, true, 'wraps output in a script tag');
+
 test_summary_and_exit();
