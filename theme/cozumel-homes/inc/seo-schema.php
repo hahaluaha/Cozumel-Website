@@ -49,6 +49,7 @@ function cozumel_local_business_schema(): array {
 }
 
 function cozumel_article_schema(int $post_id): array {
+    $author_id = get_post_field('post_author', $post_id);
     return [
         '@context'      => 'https://schema.org',
         '@type'         => 'Article',
@@ -56,7 +57,7 @@ function cozumel_article_schema(int $post_id): array {
         'datePublished' => get_the_date('Y-m-d', $post_id),
         'author'        => [
             '@type' => 'Person',
-            'name'  => get_the_author_meta('display_name'),
+            'name'  => get_the_author_meta('display_name', $author_id),
         ],
     ];
 }

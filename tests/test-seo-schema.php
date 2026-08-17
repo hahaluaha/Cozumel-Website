@@ -8,6 +8,10 @@ function get_post_meta($post_id, $key, $single = false) {
     global $__test_post_meta;
     return $__test_post_meta[$post_id][$key] ?? '';
 }
+function get_post_field($field, $post_id) {
+    global $__test_post_fields;
+    return $__test_post_fields[$post_id][$field] ?? '';
+}
 function get_the_title($post_id) {
     global $__test_post_titles;
     return $__test_post_titles[$post_id] ?? '';
@@ -19,7 +23,11 @@ function get_the_date($format, $post_id) {
     return '2026-08-16';
 }
 function get_the_author_meta($field, $user_id = null) {
-    return 'Kelley';
+    global $__test_user_meta;
+    if ($user_id === null) {
+        return '';
+    }
+    return $__test_user_meta[$user_id][$field] ?? '';
 }
 function wp_get_attachment_image_url($attachment_id, $size) {
     return "https://cozumelhomes.net/wp-content/uploads/img-{$attachment_id}.jpg";
@@ -27,7 +35,7 @@ function wp_get_attachment_image_url($attachment_id, $size) {
 
 require_once __DIR__ . '/../theme/cozumel-homes/inc/seo-schema.php';
 
-global $__test_post_meta, $__test_post_titles;
+global $__test_post_meta, $__test_post_titles, $__test_post_fields, $__test_user_meta;
 $__test_post_titles[42] = "Cozumel's Nah Ha Condominium 101";
 $__test_post_meta[42] = [
     'address'      => 'North Shore Highway Km 3.3',
@@ -69,12 +77,21 @@ assert_equal($business['address']['addressCountry'], 'MX', 'nests MX as the coun
 
 // Article schema for blog posts
 $__test_post_titles[44] = 'Meet Your Host: Kelley';
+$__test_post_fields[44] = ['post_author' => 5];
+$__test_user_meta[5] = ['display_name' => 'Kelley'];
 $article = cozumel_article_schema(44);
 assert_equal($article['@context'], 'https://schema.org', 'sets schema.org context');
 assert_equal($article['@type'], 'Article', 'sets Article type');
 assert_equal($article['headline'], 'Meet Your Host: Kelley', 'uses the post title as headline');
 assert_equal($article['datePublished'], '2026-08-16', 'uses get_the_date as datePublished');
 assert_equal($article['author']['@type'], 'Person', 'nests a Person author');
-assert_equal($article['author']['name'], 'Kelley', 'uses get_the_author_meta as author name');
+assert_equal($article['author']['name'], 'Kelley', 'uses get_the_author_meta with post author ID');
+
+// Verify author ID wiring with different user to ensure the ID is actually used
+$__test_post_titles[45] = 'Another Blog Post';
+$__test_post_fields[45] = ['post_author' => 7];
+$__test_user_meta[7] = ['display_name' => 'Fernando'];
+$article_2 = cozumel_article_schema(45);
+assert_equal($article_2['author']['name'], 'Fernando', 'author ID correctly wires to different user display names');
 
 test_summary_and_exit();

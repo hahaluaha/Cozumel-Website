@@ -33,6 +33,9 @@ if (function_exists('add_filter')) {
 
 if (function_exists('add_action')) {
     add_action('wp_head', function () {
+        if (COZUMEL_GA4_MEASUREMENT_ID === 'G-XXXXXXXXXX') {
+            return;
+        }
         echo cozumel_ga4_script_tag(COZUMEL_GA4_MEASUREMENT_ID);
     });
 }
