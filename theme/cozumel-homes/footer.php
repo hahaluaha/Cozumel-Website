@@ -9,6 +9,8 @@
     </p>
     <p>
         <a href="https://www.facebook.com/CozumelRentalHomes/" target="_blank" rel="noopener">Facebook</a>
+        &middot;
+        <a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">Privacy Policy</a>
     </p>
     <p style="font-size:0.8rem;opacity:0.6">&copy; <?php echo date('Y'); ?> Cozumel Homes. All rights reserved.</p>
 </footer>
