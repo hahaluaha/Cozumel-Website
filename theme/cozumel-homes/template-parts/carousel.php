@@ -20,17 +20,22 @@ if (empty($gallery_ids)) {
 ?>
 <div class="property-carousel">
     <div class="property-carousel__track">
-        <?php foreach ($gallery_ids as $id): ?>
+        <?php foreach ($gallery_ids as $i => $id): ?>
             <div class="property-carousel__slide">
                 <?php if (wp_attachment_is('video', $id)): ?>
-                    <video controls class="property-carousel__media">
+                    <video controls class="property-carousel__media" preload="<?php echo $i === 0 ? 'auto' : 'none'; ?>">
                         <source src="<?php echo esc_url(wp_get_attachment_url($id)); ?>">
                     </video>
                 <?php else: ?>
+                    <?php $image = wp_get_attachment_image_src($id, 'full'); ?>
                     <img
-                        src="<?php echo esc_url(wp_get_attachment_image_url($id, 'full')); ?>"
+                        src="<?php echo esc_url($image[0]); ?>"
+                        width="<?php echo esc_attr($image[1]); ?>"
+                        height="<?php echo esc_attr($image[2]); ?>"
                         alt="<?php echo esc_attr(get_the_title()); ?>"
                         class="property-carousel__media"
+                        loading="<?php echo $i === 0 ? 'eager' : 'lazy'; ?>"
+                        <?php echo $i === 0 ? 'fetchpriority="high"' : ''; ?>
                     >
                 <?php endif; ?>
             </div>
