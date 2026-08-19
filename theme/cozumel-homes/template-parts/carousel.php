@@ -34,11 +34,18 @@ foreach ($gallery_ids as $i => $id) {
         <?php foreach ($gallery_ids as $i => $id): ?>
             <div class="property-carousel__slide">
                 <?php if (wp_attachment_is('video', $id)): ?>
-                    <?php $video_meta = wp_get_attachment_metadata($id); ?>
+                    <?php
+                    $video_meta = wp_get_attachment_metadata($id);
+                    $poster_id = get_post_thumbnail_id($id);
+                    $poster_url = $poster_id ? wp_get_attachment_image_url($poster_id, 'full') : '';
+                    ?>
                     <video
                         controls
+                        playsinline
+                        muted
                         class="property-carousel__media"
                         preload="<?php echo $i === 0 ? 'auto' : 'none'; ?>"
+                        <?php if ($poster_url): ?>poster="<?php echo esc_url($poster_url); ?>"<?php endif; ?>
                         <?php if (!empty($video_meta['width'])): ?>width="<?php echo esc_attr($video_meta['width']); ?>"<?php endif; ?>
                         <?php if (!empty($video_meta['height'])): ?>height="<?php echo esc_attr($video_meta['height']); ?>"<?php endif; ?>
                     >
