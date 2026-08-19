@@ -21,7 +21,7 @@ get_header(); ?>
     <p>We use inquiry-form information to respond to your booking request and communicate with you about it — this is a legitimate business interest, and where applicable under EU/UK law, our legal basis is either your consent (submitting the form) or steps taken at your request prior to a booking. We use analytics data to understand and improve the site — a legitimate interest, and where cookies require consent under EU/UK law, that consent is what authorizes analytics cookies.</p>
 
     <h2 style="font-family:Georgia,serif;margin-top:2em">How long we keep it</h2>
-    <p><strong>Names and email addresses</strong> submitted through the inquiry form are kept only as long as needed to manage the booking conversation — typically no longer than 24 months after your last contact with us, after which they're deleted, unless you ask us to delete them sooner or you become a returning guest we stay in touch with by your continued contact.</p>
+    <p><strong>Names and email addresses</strong> submitted through the inquiry form are sent directly to us by email and are not stored in a database on this website. We keep that information only as long as needed to respond to your inquiry and, if you book with us, to manage your stay — after which it's deleted, unless you ask us to delete it sooner or you become a returning guest we stay in touch with by your continued contact.</p>
     <p><strong>Analytics data</strong> in Google Analytics is retained according to Google's standard retention settings (currently 14 months), after which it's automatically deleted or anonymized by Google.</p>
     <p>We do not keep payment data of any kind, since none is currently collected through this site.</p>
 
