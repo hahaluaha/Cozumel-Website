@@ -3,7 +3,7 @@
 get_header(); ?>
 <main class="section" style="max-width:800px;margin:0 auto;padding:48px 24px;color:var(--color-text)">
     <h1 style="font-family:Georgia,serif">Privacy Policy</h1>
-    <p style="color:var(--color-muted);font-size:0.9rem">Last updated: <?php echo date('F j, Y', strtotime('2026-08-17')); ?></p>
+    <p style="color:var(--color-muted);font-size:0.9rem">Last updated: <?php echo date('F j, Y', strtotime('2026-08-19')); ?></p>
 
     <p>Cozumel Homes ("we," "us," "our") operates cozumelhomes.net. This policy explains what personal information we collect, why, how long we keep it, and the rights you have over it — for visitors anywhere, including the European Union/UK and Mexico.</p>
 
