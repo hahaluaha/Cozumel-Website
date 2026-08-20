@@ -24,8 +24,7 @@ function cozumel_ga4_script_tag(string $measurement_id): string {
 HTML;
 }
 
-// Real measurement ID from Step 1 — replace G-XXXXXXXXXX before deploying.
-define('COZUMEL_GA4_MEASUREMENT_ID', 'G-XXXXXXXXXX');
+define('COZUMEL_GA4_MEASUREMENT_ID', 'G-T7G2R2D8HR');
 
 if (function_exists('add_filter')) {
     add_filter('robots_txt', 'cozumel_robots_txt_add_sitemap', 10, 1);
@@ -33,9 +32,6 @@ if (function_exists('add_filter')) {
 
 if (function_exists('add_action')) {
     add_action('wp_head', function () {
-        if (COZUMEL_GA4_MEASUREMENT_ID === 'G-XXXXXXXXXX') {
-            return;
-        }
         echo cozumel_ga4_script_tag(COZUMEL_GA4_MEASUREMENT_ID);
     });
 }
