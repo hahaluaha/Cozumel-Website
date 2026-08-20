@@ -4,7 +4,7 @@ $photo_size = $compact ? 'medium' : 'large';
 ?>
 <section class="host-card<?php echo $compact ? ' host-card--compact' : ''; ?>">
     <div class="host-card__photo-wrap">
-        <img class="host-card__photo" src="<?php echo esc_url(wp_get_attachment_image_url(144, $photo_size)); ?>" alt="Kelley, host of Nah Ha 101, Cool Caribbean Views, and Casa Bohemia">
+        <img class="host-card__photo" src="<?php echo esc_url(wp_get_attachment_image_url(144, $photo_size)); ?>" alt="Kelley, host of Nah Ha 101, Cool Caribbean Views, and Casa Bohemia" loading="lazy">
         <div class="host-card__wave" aria-hidden="true"></div>
     </div>
     <div class="host-card__body">

@@ -8,7 +8,7 @@ $rate         = get_post_meta(get_the_ID(), 'base_rate', true);
 <div class="property-card">
     <a href="<?php the_permalink(); ?>">
         <?php if (has_post_thumbnail()): ?>
-            <?php the_post_thumbnail('medium_large', ['class' => 'property-card__image', 'alt' => get_the_title()]); ?>
+            <?php the_post_thumbnail('medium_large', ['class' => 'property-card__image', 'alt' => get_the_title(), 'loading' => 'lazy']); ?>
         <?php else: ?>
             <div class="property-card__image property-card__image--placeholder"></div>
         <?php endif; ?>
