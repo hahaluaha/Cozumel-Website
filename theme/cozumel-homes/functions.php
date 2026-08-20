@@ -90,3 +90,12 @@ function cozumel_enqueue_gallery_admin_assets($hook) {
     );
 }
 add_action('admin_enqueue_scripts', 'cozumel_enqueue_gallery_admin_assets');
+
+// The site logo is the Core Web Vitals LCP element on most pages (Search
+// Console flagged it: 4.9s mobile LCP). fetchpriority hints the browser to
+// fetch it before lower-priority resources instead of discovering it late.
+function cozumel_logo_fetchpriority($attr) {
+    $attr['fetchpriority'] = 'high';
+    return $attr;
+}
+add_filter('generate_logo_attributes', 'cozumel_logo_fetchpriority');
