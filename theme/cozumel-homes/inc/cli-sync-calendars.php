@@ -26,6 +26,7 @@ class Cozumel_Sync_Calendars_Command {
         ]);
 
         $failures = [];
+        $synced = 0;
 
         foreach ($properties as $property) {
             $result = $this->sync_one($property, $buffer_days);
@@ -35,14 +36,16 @@ class Cozumel_Sync_Calendars_Command {
             }
             if ($result !== true) {
                 $failures[] = "{$property->post_title}: {$result}";
+                continue;
             }
+            $synced++;
         }
 
         if (!empty($failures)) {
             $this->email_failures($failures);
             WP_CLI::warning('Completed with ' . count($failures) . ' failure(s): ' . implode('; ', $failures));
         } else {
-            WP_CLI::success('Synced ' . count($properties) . ' propert' . (count($properties) === 1 ? 'y' : 'ies') . '.');
+            WP_CLI::success('Synced ' . $synced . ' propert' . ($synced === 1 ? 'y' : 'ies') . '.');
         }
     }
 

@@ -5,7 +5,7 @@ function cozumel_register_meta_fields() {
         'mac_id', 'neighborhood', 'address', 'base_rate', 'status',
         'max_guests', 'bedrooms', 'bathrooms',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
-        'manual_blocked_dates', 'airbnb_blocked_dates',
+        'manual_blocked_dates',
         'base_guests', 'extra_guest_fee',
     ];
     foreach ($rental_fields as $field) {
@@ -15,6 +15,17 @@ function cozumel_register_meta_fields() {
             'type'         => 'string',
         ]);
     }
+
+    // Sync-only: written exclusively by `wp cozumel sync-calendars` via
+    // update_post_meta(). Readable in REST like the rest, but auth_callback
+    // blocks writes through the core REST API so an edit_post-capable user
+    // can't hand-edit it out of step with the next hourly sync.
+    register_post_meta('rental-property', 'airbnb_blocked_dates', [
+        'show_in_rest'  => true,
+        'single'        => true,
+        'type'          => 'string',
+        'auth_callback' => '__return_false',
+    ]);
 
     $forsale_fields = [
         'mac_id', 'asking_price', 'listing_url', 'notes',

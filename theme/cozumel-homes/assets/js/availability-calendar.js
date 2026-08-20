@@ -2,6 +2,7 @@
     'use strict';
 
     var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var weekdayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
     function toISO(date) { return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()); }
@@ -40,6 +41,11 @@
 
         var html = '<div class="availability-calendar__month">';
         html += '<h4>' + monthNames[month] + ' ' + year + '</h4>';
+        html += '<div class="availability-calendar__weekdays">';
+        weekdayNames.forEach(function (name) {
+            html += '<span class="availability-calendar__weekday">' + name + '</span>';
+        });
+        html += '</div>';
         html += '<div class="availability-calendar__grid">';
         for (var i = 0; i < startWeekday; i++) {
             html += '<span class="availability-calendar__day availability-calendar__day--empty"></span>';

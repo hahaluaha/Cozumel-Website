@@ -76,6 +76,8 @@ body {
 .availability-calendar__nav-btn:hover { background: #cdeae4; }
 .availability-calendar { display: flex; gap: 24px; flex-wrap: wrap; margin: 16px 0 24px; }
 .availability-calendar__month h4 { margin: 0 0 8px; font-size: 1rem; }
+.availability-calendar__weekdays { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; margin-bottom: 4px; }
+.availability-calendar__weekday { width: 32px; text-align: center; font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; }
 .availability-calendar__grid { display: grid; grid-template-columns: repeat(7, 32px); gap: 4px; }
 .availability-calendar__day {
     width: 32px; height: 32px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;

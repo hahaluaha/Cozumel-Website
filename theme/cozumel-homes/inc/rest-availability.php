@@ -19,6 +19,10 @@ function cozumel_get_availability(WP_REST_Request $request): WP_REST_Response {
         return new WP_REST_Response(['error' => 'not a rental property'], 404);
     }
 
+    if (get_post_status($property_id) !== 'publish') {
+        return new WP_REST_Response(['error' => 'not a rental property'], 404);
+    }
+
     $airbnb_raw = get_post_meta($property_id, 'airbnb_blocked_dates', true);
     $airbnb_ranges = json_decode($airbnb_raw ?: '[]', true);
     if (!is_array($airbnb_ranges)) {
