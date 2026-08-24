@@ -45,4 +45,19 @@ assert_equal(
 assert_equal(strpos($tag, "'scroll'") !== false && strpos($tag, "'click'") !== false, true, 'listens for scroll and click as interaction triggers');
 assert_equal(strpos($tag, 'addEventListener') !== false, true, 'defers loading until an interaction event fires');
 
+// The 'js' timestamp must fire immediately at the top level (not inside the
+// deferred loadGA function), so GA4's engagement-time clock starts at actual
+// page load — otherwise a visitor who reads for 15-20s before scrolling/
+// tapping would have that reading time undercounted. 'config' (the actual
+// network hit) must stay inside loadGA, gated on the first interaction.
+$loadGAStart = strpos($tag, 'function loadGA()');
+$loadGAEnd = strpos($tag, '}', strpos($tag, 'document.head.appendChild'));
+assert_equal($loadGAStart !== false && $loadGAEnd !== false, true, 'loadGA function body is present and locatable');
+$loadGABody = substr($tag, $loadGAStart, $loadGAEnd - $loadGAStart);
+$beforeLoadGA = substr($tag, 0, $loadGAStart);
+
+assert_equal(strpos($beforeLoadGA, "gtag('js'") !== false, true, "gtag('js', ...) fires immediately, outside the deferred loadGA function");
+assert_equal(strpos($loadGABody, "gtag('js'") === false, true, "gtag('js', ...) is not re-fired inside the deferred loadGA function");
+assert_equal(strpos($loadGABody, "gtag('config'") !== false, true, "gtag('config', ...) stays deferred inside loadGA, gated on interaction");
+
 test_summary_and_exit();

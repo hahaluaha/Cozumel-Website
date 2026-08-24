@@ -21,25 +21,28 @@ function cozumel_noindex_meta_tag(bool $should_noindex): string {
 
 // GA4 previously loaded eagerly on every page load, competing with the
 // visitor's first tap for main-thread time — Search Console flagged INP
-// (interaction responsiveness) as "Need Improvement" on mobile. Deferring
-// the actual gtag.js fetch/init until the first real interaction (scroll,
-// tap, keypress) removes it from that critical window. Trade-off: a
-// visitor who loads the page and leaves without any interaction is no
-// longer counted — accepted, since engaged visits still track normally.
+// (interaction responsiveness) as "Need Improvement" on mobile. Only the
+// gtag.js fetch + 'config' call (the network/parsing cost) is deferred
+// until the first real interaction (scroll, tap, keypress); the 'js'
+// timestamp fires immediately so GA4's engagement-time clock still starts
+// at actual page load, not at the trigger — otherwise a visitor who reads
+// for 15-20s before scrolling would have that reading time undercounted.
+// Trade-off: a visitor who leaves without any interaction at all is
+// still not counted — accepted, since engaged visits track normally.
 function cozumel_ga4_script_tag(string $measurement_id): string {
     $id = esc_js($measurement_id);
     return <<<HTML
 <script>
 (function () {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function () { dataLayer.push(arguments); };
+  gtag('js', new Date());
   var loaded = false;
   var events = ['scroll', 'keydown', 'mousemove', 'touchstart', 'click'];
   function loadGA() {
     if (loaded) return;
     loaded = true;
     events.forEach(function (e) { window.removeEventListener(e, loadGA, true); });
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = window.gtag || function () { dataLayer.push(arguments); };
-    gtag('js', new Date());
     gtag('config', '{$id}');
     var s = document.createElement('script');
     s.async = true;
@@ -64,6 +67,6 @@ if (function_exists('add_action')) {
     });
 
     add_action('wp_head', function () {
-        echo cozumel_noindex_meta_tag(is_category() || is_author());
+        echo cozumel_noindex_meta_tag(is_category('uncategorized') || is_author());
     }, 1);
 }
