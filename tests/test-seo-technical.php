@@ -32,10 +32,17 @@ assert_equal(
 );
 assert_equal(cozumel_noindex_meta_tag(false), '', 'emits nothing when should_noindex is false');
 
-// GA4 script tag
+// GA4 script tag — deferred until first interaction, not loaded eagerly
 $tag = cozumel_ga4_script_tag('G-TEST12345');
 assert_equal(strpos($tag, "gtag/js?id=G-TEST12345") !== false, true, 'loads gtag.js with the measurement ID');
 assert_equal(strpos($tag, "gtag('config', 'G-TEST12345')") !== false, true, 'configures gtag with the measurement ID');
 assert_equal(strpos($tag, '<script') !== false, true, 'wraps output in a script tag');
+assert_equal(
+    strpos($tag, 'src="https://www.googletagmanager.com') === false,
+    true,
+    'does not eagerly load gtag.js via a static <script src> tag'
+);
+assert_equal(strpos($tag, "'scroll'") !== false && strpos($tag, "'click'") !== false, true, 'listens for scroll and click as interaction triggers');
+assert_equal(strpos($tag, 'addEventListener') !== false, true, 'defers loading until an interaction event fires');
 
 test_summary_and_exit();

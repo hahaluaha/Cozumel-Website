@@ -19,15 +19,35 @@ function cozumel_noindex_meta_tag(bool $should_noindex): string {
     return $should_noindex ? '<meta name="robots" content="noindex,follow">' . "\n" : '';
 }
 
+// GA4 previously loaded eagerly on every page load, competing with the
+// visitor's first tap for main-thread time — Search Console flagged INP
+// (interaction responsiveness) as "Need Improvement" on mobile. Deferring
+// the actual gtag.js fetch/init until the first real interaction (scroll,
+// tap, keypress) removes it from that critical window. Trade-off: a
+// visitor who loads the page and leaves without any interaction is no
+// longer counted — accepted, since engaged visits still track normally.
 function cozumel_ga4_script_tag(string $measurement_id): string {
     $id = esc_js($measurement_id);
     return <<<HTML
-<script async src="https://www.googletagmanager.com/gtag/js?id={$id}"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', '{$id}');
+(function () {
+  var loaded = false;
+  var events = ['scroll', 'keydown', 'mousemove', 'touchstart', 'click'];
+  function loadGA() {
+    if (loaded) return;
+    loaded = true;
+    events.forEach(function (e) { window.removeEventListener(e, loadGA, true); });
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { dataLayer.push(arguments); };
+    gtag('js', new Date());
+    gtag('config', '{$id}');
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id={$id}';
+    document.head.appendChild(s);
+  }
+  events.forEach(function (e) { window.addEventListener(e, loadGA, { passive: true, capture: true }); });
+})();
 </script>
 HTML;
 }

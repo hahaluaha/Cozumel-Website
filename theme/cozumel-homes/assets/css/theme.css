@@ -213,8 +213,8 @@ body {
     text-align: center;
     transform: translateX(-190px);
     background: rgba(20,70,110,0.14);
-    backdrop-filter: blur(30px) saturate(1.7);
-    -webkit-backdrop-filter: blur(30px) saturate(1.7);
+    backdrop-filter: blur(16px) saturate(1.7);
+    -webkit-backdrop-filter: blur(16px) saturate(1.7);
     border-radius: 32px;
     border: 1px solid rgba(200,228,245,0.32);
     box-shadow:
