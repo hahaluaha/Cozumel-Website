@@ -11,6 +11,14 @@ function cozumel_robots_txt_add_sitemap(string $output): string {
     return rtrim($output) . "\n" . $sitemap_line . "\n";
 }
 
+// Author archives and the default "Uncategorized" category have no real
+// content on this site (single-author, no taxonomy use) — Search Console
+// flagged them as crawled-but-unindexed. Noindex keeps them out of the
+// index without blocking crawling of the (harmless) pages themselves.
+function cozumel_noindex_meta_tag(bool $should_noindex): string {
+    return $should_noindex ? '<meta name="robots" content="noindex,follow">' . "\n" : '';
+}
+
 function cozumel_ga4_script_tag(string $measurement_id): string {
     $id = esc_js($measurement_id);
     return <<<HTML
@@ -34,4 +42,8 @@ if (function_exists('add_action')) {
     add_action('wp_head', function () {
         echo cozumel_ga4_script_tag(COZUMEL_GA4_MEASUREMENT_ID);
     });
+
+    add_action('wp_head', function () {
+        echo cozumel_noindex_meta_tag(is_category() || is_author());
+    }, 1);
 }

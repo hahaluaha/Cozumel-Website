@@ -24,6 +24,14 @@ assert_equal(
     'does not duplicate the sitemap directive'
 );
 
+// Noindex meta tag for author/category archives
+assert_equal(
+    cozumel_noindex_meta_tag(true),
+    '<meta name="robots" content="noindex,follow">' . "\n",
+    'emits noindex,follow meta tag when should_noindex is true'
+);
+assert_equal(cozumel_noindex_meta_tag(false), '', 'emits nothing when should_noindex is false');
+
 // GA4 script tag
 $tag = cozumel_ga4_script_tag('G-TEST12345');
 assert_equal(strpos($tag, "gtag/js?id=G-TEST12345") !== false, true, 'loads gtag.js with the measurement ID');
