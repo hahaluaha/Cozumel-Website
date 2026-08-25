@@ -51,6 +51,16 @@ function cozumel_render_inquiry_form($property_name = '', $availability = null) 
     <?php
 }
 
+// A scanner or spam bot can submit this form as fast as it can send requests
+// — the honeypot only catches submissions that fill every field, and a vuln
+// scanner's per-parameter fuzzing leaves it empty most of the time (an OWASP
+// ZAP active scan flooded the inbox with dozens of real emails on 2026-08-24,
+// each one a different attack payload that happened to pass name/email
+// validation). Cap real sends per IP within a short window.
+function cozumel_inquiry_rate_limit_exceeded(int $recent_count, int $limit = 5): bool {
+    return $recent_count >= $limit;
+}
+
 function cozumel_handle_inquiry_submission() {
     $redirect_to = !empty($_POST['redirect_to']) ? esc_url_raw($_POST['redirect_to']) : home_url('/');
 
@@ -65,6 +75,14 @@ function cozumel_handle_inquiry_submission() {
         wp_safe_redirect(add_query_arg('inquiry', 'sent', $redirect_to));
         exit;
     }
+
+    $rate_key = 'cozumel_inquiry_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
+    $recent_count = (int) get_transient($rate_key);
+    if (cozumel_inquiry_rate_limit_exceeded($recent_count)) {
+        wp_safe_redirect(add_query_arg('inquiry', 'error', $redirect_to));
+        exit;
+    }
+    set_transient($rate_key, $recent_count + 1, 10 * MINUTE_IN_SECONDS);
 
     $name = sanitize_text_field($_POST['your_name'] ?? '');
     $email = sanitize_email($_POST['your_email'] ?? '');
@@ -90,5 +108,7 @@ function cozumel_handle_inquiry_submission() {
     wp_safe_redirect(add_query_arg('inquiry', $sent ? 'sent' : 'error', $redirect_to));
     exit;
 }
-add_action('admin_post_cozumel_inquiry', 'cozumel_handle_inquiry_submission');
-add_action('admin_post_nopriv_cozumel_inquiry', 'cozumel_handle_inquiry_submission');
+if (function_exists('add_action')) {
+    add_action('admin_post_cozumel_inquiry', 'cozumel_handle_inquiry_submission');
+    add_action('admin_post_nopriv_cozumel_inquiry', 'cozumel_handle_inquiry_submission');
+}
