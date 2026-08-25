@@ -91,7 +91,7 @@ function cozumel_enqueue_gallery_admin_assets($hook) {
         'cozumel-gallery-picker',
         get_stylesheet_directory_uri() . '/assets/js/gallery-picker.js',
         ['jquery', 'jquery-ui-sortable'],
-        '1.0.0',
+        cozumel_asset_version('/assets/js/gallery-picker.js'),
         true
     );
 }
