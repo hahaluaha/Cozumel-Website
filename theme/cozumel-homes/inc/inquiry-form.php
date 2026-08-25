@@ -57,8 +57,46 @@ function cozumel_render_inquiry_form($property_name = '', $availability = null) 
 // ZAP active scan flooded the inbox with dozens of real emails on 2026-08-24,
 // each one a different attack payload that happened to pass name/email
 // validation). Cap real sends per IP within a short window.
-function cozumel_inquiry_rate_limit_exceeded(int $recent_count, int $limit = 5): bool {
-    return $recent_count >= $limit;
+//
+// $attempt_number is this request's count AFTER an atomic DB increment
+// (see cozumel_inquiry_register_attempt), not a pre-increment read — a
+// plain get-then-set transient lets concurrent requests all read the same
+// stale count and all get admitted, which defeats the cap under exactly
+// the kind of parallel fuzzing this exists to stop.
+function cozumel_inquiry_rate_limit_exceeded(int $attempt_number, int $limit = 5): bool {
+    return $attempt_number > $limit;
+}
+
+// Atomically increments and returns this IP's attempt count for the
+// current window, resetting the window if it has expired. Not unit
+// tested — it's a thin DB-touching wrapper around the pure limit check
+// above, same pattern as the add_action/add_filter wiring elsewhere in
+// this file.
+function cozumel_inquiry_register_attempt(string $ip, int $window_seconds = 600): int {
+    global $wpdb;
+    $key = 'cozumel_inquiry_rl_' . md5($ip);
+    $value_option = '_transient_' . $key;
+    $timeout_option = '_transient_timeout_' . $key;
+    $now = time();
+
+    $expires = (int) get_option($timeout_option);
+    if ($expires < $now) {
+        // Starting (or restarting an expired) window. A race here just
+        // means two requests can both reset to 0 in the same instant —
+        // harmless, self-corrects on the next request, unlike a race on
+        // the increment/check itself which is what actually mattered.
+        update_option($timeout_option, $now + $window_seconds, false);
+        update_option($value_option, 0, false);
+    }
+
+    // Single atomic UPDATE — concurrent requests each get a distinct
+    // post-increment value, so they can't all pass the limit check below.
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$wpdb->options} SET option_value = option_value + 1 WHERE option_name = %s",
+        $value_option
+    ));
+
+    return (int) get_option($value_option);
 }
 
 function cozumel_handle_inquiry_submission() {
@@ -76,13 +114,11 @@ function cozumel_handle_inquiry_submission() {
         exit;
     }
 
-    $rate_key = 'cozumel_inquiry_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
-    $recent_count = (int) get_transient($rate_key);
-    if (cozumel_inquiry_rate_limit_exceeded($recent_count)) {
+    $attempt_number = cozumel_inquiry_register_attempt($_SERVER['REMOTE_ADDR'] ?? '');
+    if (cozumel_inquiry_rate_limit_exceeded($attempt_number)) {
         wp_safe_redirect(add_query_arg('inquiry', 'error', $redirect_to));
         exit;
     }
-    set_transient($rate_key, $recent_count + 1, 10 * MINUTE_IN_SECONDS);
 
     $name = sanitize_text_field($_POST['your_name'] ?? '');
     $email = sanitize_email($_POST['your_email'] ?? '');

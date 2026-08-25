@@ -42,6 +42,11 @@ function cozumel_enqueue_styles() {
 add_action('wp_enqueue_scripts', 'cozumel_enqueue_styles');
 
 // Map provider: 'google' | 'apple' | 'openstreetmap'
+// The production nginx CSP's frame-src only allowlists openstreetmap.org
+// (see security-headers.conf in the VPS-local conf/nginx repo) — changing
+// this constant to 'google' or 'apple' will silently break the map embed
+// (blank box, CSP violation only visible in the visitor's own devtools)
+// until that separate repo's frame-src is updated to match.
 define('COZUMEL_MAP_PROVIDER', 'openstreetmap');
 define('COZUMEL_GOOGLE_MAPS_KEY', defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '');
 
