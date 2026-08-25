@@ -38,7 +38,17 @@ jQuery(function ($) {
                     .append($('<img>').attr('src', thumbUrl).css({
                         width: 80, height: 80, objectFit: 'cover', borderRadius: 4, display: 'block',
                         border: isVideo ? '2px solid #2a6fa8' : 'none'
-                    }))
+                    }));
+                // Matches the PHP-rendered list's "VIDEO" badge (meta-fields.php)
+                // — without this, a freshly-added video looks identical to a
+                // photo until the page is reloaded and the PHP render takes over.
+                if (isVideo) {
+                    $item.append($('<span>VIDEO</span>').css({
+                        position: 'absolute', top: 2, left: 2, background: 'rgba(0,0,0,.65)',
+                        color: '#fff', fontSize: 9, padding: '1px 4px', borderRadius: 2, letterSpacing: '.03em'
+                    }));
+                }
+                $item
                     .append($('<span>').text(data.filename || data.title || '').attr('title', data.filename || data.title || '').css({
                         display: 'block', fontSize: 10, maxWidth: 80, overflow: 'hidden',
                         textOverflow: 'ellipsis', whiteSpace: 'nowrap'

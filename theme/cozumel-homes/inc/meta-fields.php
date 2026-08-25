@@ -137,11 +137,16 @@ function cozumel_gallery_meta_box_html($post) {
                     $thumb = $poster_id ? wp_get_attachment_image_src($poster_id, 'thumbnail') : false;
                     $thumb_url = $thumb ? $thumb[0] : includes_url('images/media/video.png');
                 } else {
+                    // A missing/undecodable thumbnail (deleted file, missing
+                    // metadata) used to get skipped here too — same class of
+                    // bug as the video case above. Always render a tile,
+                    // falling back to WordPress's generic "broken" icon,
+                    // rather than silently dropping the item on next reorder.
                     $thumb = wp_get_attachment_image_src($id, 'thumbnail');
-                    if (!$thumb) continue;
-                    $thumb_url = $thumb[0];
+                    $thumb_url = $thumb ? $thumb[0] : includes_url('images/media/default.png');
                 }
-                $filename = wp_basename(get_attached_file($id));
+                $attached_file = get_attached_file($id);
+                $filename = $attached_file ? wp_basename($attached_file) : '(missing file)';
             ?>
                 <li class="cozumel-gallery-item" data-id="<?php echo esc_attr($id); ?>" style="position:relative;cursor:move;text-align:center">
                     <img src="<?php echo esc_url($thumb_url); ?>" style="width:80px;height:80px;object-fit:cover;border-radius:4px;display:block;<?php echo $is_video ? 'border:2px solid #2a6fa8' : ''; ?>">
