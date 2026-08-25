@@ -125,11 +125,28 @@ function cozumel_gallery_meta_box_html($post) {
     <div id="cozumel-gallery-picker">
         <ul id="cozumel-gallery-list" style="display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0 0 12px;padding:0">
             <?php foreach ($ids as $id):
-                $thumb = wp_get_attachment_image_src($id, 'thumbnail');
-                if (!$thumb) continue;
+                // Video attachments have no image thumbnail of their own —
+                // skipping them here used to silently drop them from the
+                // saved order the moment anyone reordered the list (the JS
+                // resync only serializes what's actually rendered). Always
+                // render a tile: use the video's own poster (if one was set
+                // on the attachment) or WordPress's built-in video icon.
+                $is_video = wp_attachment_is('video', $id);
+                if ($is_video) {
+                    $poster_id = get_post_thumbnail_id($id);
+                    $thumb = $poster_id ? wp_get_attachment_image_src($poster_id, 'thumbnail') : false;
+                    $thumb_url = $thumb ? $thumb[0] : includes_url('images/media/video.png');
+                } else {
+                    $thumb = wp_get_attachment_image_src($id, 'thumbnail');
+                    if (!$thumb) continue;
+                    $thumb_url = $thumb[0];
+                }
+                $filename = wp_basename(get_attached_file($id));
             ?>
-                <li class="cozumel-gallery-item" data-id="<?php echo esc_attr($id); ?>" style="position:relative;cursor:move">
-                    <img src="<?php echo esc_url($thumb[0]); ?>" style="width:80px;height:80px;object-fit:cover;border-radius:4px;display:block">
+                <li class="cozumel-gallery-item" data-id="<?php echo esc_attr($id); ?>" style="position:relative;cursor:move;text-align:center">
+                    <img src="<?php echo esc_url($thumb_url); ?>" style="width:80px;height:80px;object-fit:cover;border-radius:4px;display:block;<?php echo $is_video ? 'border:2px solid #2a6fa8' : ''; ?>">
+                    <?php if ($is_video): ?><span style="position:absolute;top:2px;left:2px;background:rgba(0,0,0,.65);color:#fff;font-size:9px;padding:1px 4px;border-radius:2px;letter-spacing:.03em">VIDEO</span><?php endif; ?>
+                    <span style="display:block;font-size:10px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="<?php echo esc_attr($filename); ?>"><?php echo esc_html($filename); ?></span>
                     <button type="button" class="cozumel-gallery-remove" style="position:absolute;top:-6px;right:-6px;background:#c00;color:#fff;border:none;border-radius:50%;width:20px;height:20px;line-height:1;cursor:pointer">×</button>
                 </li>
             <?php endforeach; ?>

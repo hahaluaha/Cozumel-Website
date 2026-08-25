@@ -27,11 +27,21 @@ jQuery(function ($) {
                 if ($list.find('.cozumel-gallery-item[data-id="' + data.id + '"]').length) {
                     return;
                 }
-                var thumbUrl = (data.sizes && data.sizes.thumbnail) ? data.sizes.thumbnail.url : data.url;
-                var $item = $('<li class="cozumel-gallery-item" style="position:relative;cursor:move">')
+                // Video attachments have no data.sizes.thumbnail — fall back
+                // to wp.media's own generic icon (data.icon) rather than
+                // data.url (which would try to render the raw .mp4 as an
+                // <img>). Matches the PHP-rendered list's fallback.
+                var isVideo = data.type === 'video';
+                var thumbUrl = (data.sizes && data.sizes.thumbnail) ? data.sizes.thumbnail.url : (data.icon || data.url);
+                var $item = $('<li class="cozumel-gallery-item" style="position:relative;cursor:move;text-align:center">')
                     .attr('data-id', data.id)
                     .append($('<img>').attr('src', thumbUrl).css({
-                        width: 80, height: 80, objectFit: 'cover', borderRadius: 4, display: 'block'
+                        width: 80, height: 80, objectFit: 'cover', borderRadius: 4, display: 'block',
+                        border: isVideo ? '2px solid #2a6fa8' : 'none'
+                    }))
+                    .append($('<span>').text(data.filename || data.title || '').attr('title', data.filename || data.title || '').css({
+                        display: 'block', fontSize: 10, maxWidth: 80, overflow: 'hidden',
+                        textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                     }))
                     .append($('<button type="button" class="cozumel-gallery-remove">×</button>').css({
                         position: 'absolute', top: -6, right: -6, background: '#c00', color: '#fff',
