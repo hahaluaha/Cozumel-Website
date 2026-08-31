@@ -69,6 +69,8 @@ body {
 .property-single h1 { font-family: var(--font-primary); font-size: 2.2rem; }
 .property-single__neighborhood { color: var(--color-muted); font-size: 1.1rem; }
 .property-single__specs { color: var(--color-muted); }
+.property-single__browse-all { margin: 16px 0; }
+.property-single__browse-all .btn { padding: 8px 20px; font-size: 0.85rem; }
 .property-single__rate { font-size: 1.5rem; font-weight: 700; color: var(--color-navy); }
 
 .availability-calendar__nav { display: flex; justify-content: flex-end; gap: 8px; margin: 0 0 8px; }

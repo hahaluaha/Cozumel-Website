@@ -45,6 +45,8 @@
                 </p>
             <?php endif; ?>
 
+            <?php get_template_part('template-parts/browse-rentals-cta'); ?>
+
             <?php if ($price): ?>
                 <p class="property-single__rate">$<?php echo esc_html(number_format((float)$price)); ?> USD</p>
             <?php endif; ?>

@@ -35,6 +35,8 @@
                 </p>
             <?php endif; ?>
 
+            <?php get_template_part('template-parts/browse-rentals-cta'); ?>
+
             <?php if ($rate): ?>
                 <p class="property-single__rate">
                     From $<?php echo esc_html(number_format((float)$rate)); ?> / night
