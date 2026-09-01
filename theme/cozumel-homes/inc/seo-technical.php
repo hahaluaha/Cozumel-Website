@@ -123,6 +123,21 @@ define('COZUMEL_GA4_MEASUREMENT_ID', 'G-T7G2R2D8HR');
 
 if (function_exists('add_filter')) {
     add_filter('robots_txt', 'cozumel_robots_txt_add_sitemap', 10, 1);
+
+    // Comments are closed site-wide and the theme renders no comment UI.
+    // The comment feeds (/comments/feed/, per-post <post>/feed/) still
+    // return valid-but-empty 200s that Google crawls (flagged "crawled -
+    // currently not indexed" in Search Console). Send X-Robots-Tag:
+    // noindex on those responses — same noindex approach as the thin
+    // archive pages above, and safer than redirecting them (bulk
+    // feed -> / redirects read as soft 404s). Drop the site-wide
+    // comments-feed <link> autodiscovery tag too; the main /feed/ stays.
+    add_filter('feed_links_show_comments_feed', '__return_false');
+    add_action('template_redirect', function () {
+        if (is_comment_feed() && !headers_sent()) {
+            header('X-Robots-Tag: noindex, follow', true);
+        }
+    });
 }
 
 if (function_exists('add_action')) {
