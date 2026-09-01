@@ -24,6 +24,17 @@ current plan is `.superpowers/sdd/progress.md` in this repo.
   registered with rewrite slugs `rentals` / `for-sale` (`inc/post-types.php`). These
   routes work automatically once permalinks flush — they are NOT WordPress Pages.
   Only **Contact** needs an actual Page (no CPT backs it).
+- The CPT **archive** pages (`/rentals/`, `/for-sale/`) are not in WordPress core's
+  sitemap by default — core lists individual CPT posts but not archive index URLs,
+  and exposes no post-processing filter on a provider's URL list (only the
+  `wp_sitemaps_posts_pre_url_list` short-circuit; `wp_sitemaps_posts_url_list` does
+  NOT exist). `inc/seo-technical.php` registers a custom `WP_Sitemaps_Provider`
+  (`Cozumel_CPT_Archives_Sitemap_Provider`, provider name `archives`) that publishes
+  `wp-sitemap-archives-1.xml`. If you touch it: (a) provider `name` must be `[a-z]`
+  only — a hyphen breaks WP's sitemap URL rewrite regex and the sub-sitemap
+  soft-404s to the homepage; (b) `WP_Sitemaps_Provider::$name` is `protected` — read
+  the class's `NAME` const, never `$provider->name` from outside; (c) registering a
+  new provider needs a one-time `wp rewrite flush` before its sub-sitemap URL routes.
 - Custom fields (`inc/meta-fields.php`) hold structured data (neighborhood, address,
   base_rate, max_guests, bedrooms, bathrooms, etc). There's no separate field for
   amenities/house rules or pricing policy notes (e.g. weekly discount, monthly rate)
@@ -42,6 +53,13 @@ current plan is `.superpowers/sdd/progress.md` in this repo.
 - Pricing structure for all rentals: 7+ night stays (under a month) get 10% off the
   nightly rate; full-month stays use a separate flat monthly rate with electricity
   billed separately by guest consumption.
+- Property-page hero videos are **not** in Google video search and that is expected,
+  not a bug. GSC reports "Video isn't on a watch page — supplementary content on the
+  page": the property pages are listings, not watch pages, and Google only indexes a
+  video that is a page's main content. The `<video>` markup, `.mp4`, and poster are
+  all detected fine. Real video-search visibility would need dedicated video-tour
+  pages (video as main content + transcript + `VideoObject` schema) — a future
+  content project, not a markup fix.
 
 ## Web Design & Quality Standards
 - **Rendering**: staying WordPress (server-renders on request, no headless/React
@@ -94,6 +112,19 @@ current plan is `.superpowers/sdd/progress.md` in this repo.
   default `mail()` always fails silently. Credentials
   (`COZUMEL_SMTP_USER`/`COZUMEL_SMTP_PASS`) are constants in `wp-config.php` on
   both local dev and production, never committed (git-ignored).
+- **After every deploy, verify the site still renders.** `php -l` and the WP-less
+  test harness (`php tests/test-*.php`) do NOT catch WordPress-runtime errors —
+  accessing a `protected` property, an undefined WP function, a bad hook signature.
+  Any such error in code on an early hook (`init`, etc.) fatals *every* page load.
+  Take a timestamped backup before the first deploy of a file
+  (`sudo cp <file> /root/site-backups/<name>.bak-$(date +%F-%H%M)`), then right after
+  `scp` + php-fpm reload run
+  `curl -s https://cozumelhomes.net/ | grep -qi "critical error" && echo DOWN`
+  plus an HTTP-status check on `/` and the page the change touches; restore the
+  backup if it fails. (Self-inflicted ~3-min site-wide outage on 2026-09-01 from a
+  `$provider->name` protected-property access that passed lint + tests.)
+- New sitemap providers / rewrite-rule changes need `wp rewrite flush` on the VPS
+  after deploy (`cd /var/www/cozumelhomes.net/htdocs && sudo -u www-data wp rewrite flush`).
 
 ## SwiftUI-adjacent WordPress gotcha
 - `get_permalink()` with no argument depends on WordPress's global `$post`,
