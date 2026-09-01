@@ -19,6 +19,70 @@ function cozumel_noindex_meta_tag(bool $should_noindex): string {
     return $should_noindex ? '<meta name="robots" content="noindex,follow">' . "\n" : '';
 }
 
+// WordPress core's sitemap lists every individual rental-property /
+// forsale-property post but not the post-type archive landing pages
+// (/rentals/, /for-sale/). Those archive URLs are the ones meant to rank
+// for "cozumel home rentals" and similar, and Search Console had /rentals/
+// as "URL is unknown to Google" — nothing in the sitemap pointed at it.
+// Core exposes no post-processing filter on a CPT's URL list (only a
+// short-circuit), so a dedicated provider publishes them instead:
+// wp-sitemap-archives-1.xml, added to the sitemap index. The provider
+// name must be [a-z] only — WordPress's sitemap URL rewrite regex does
+// not allow hyphens in it.
+//
+// Pure: given post types and a resolver ('get_post_type_archive_link' in
+// production), returns well-formed sitemap entries, skipping any type
+// whose archive link can't be resolved.
+function cozumel_cpt_archive_sitemap_urls(array $post_types, callable $resolver): array {
+    $urls = [];
+    foreach ($post_types as $post_type) {
+        $link = $resolver($post_type);
+        if (is_string($link) && $link !== '') {
+            $urls[] = ['loc' => $link];
+        }
+    }
+    return $urls;
+}
+
+// Guarded so the test harness (which loads this file without WordPress)
+// doesn't fatal on the missing parent class.
+if (class_exists('WP_Sitemaps_Provider')) {
+    class Cozumel_CPT_Archives_Sitemap_Provider extends WP_Sitemaps_Provider {
+        // Single source of truth for the provider name — used here and by
+        // the wp_register_sitemap_provider() call. [a-z] only.
+        const NAME = 'archives';
+
+        public function __construct() {
+            $this->name        = self::NAME;
+            $this->object_type = 'archive';
+        }
+
+        public function get_url_list($page_num, $object_subtype = '') {
+            if ((int) $page_num !== 1) {
+                return array();
+            }
+            return cozumel_cpt_archive_sitemap_urls(
+                array('rental-property', 'forsale-property'),
+                'get_post_type_archive_link'
+            );
+        }
+
+        public function get_max_num_pages($object_subtype = '') {
+            return 1;
+        }
+
+        // Don't advertise wp-sitemap-archives-1.xml in the index if it
+        // would render empty (both archive links unresolvable) — an
+        // indexed-but-404 sub-sitemap shows as "Couldn't fetch" in GSC.
+        public function get_sitemap_entries() {
+            if (empty($this->get_url_list(1))) {
+                return array();
+            }
+            return parent::get_sitemap_entries();
+        }
+    }
+}
+
 // GA4 previously loaded eagerly on every page load, competing with the
 // visitor's first tap for main-thread time — Search Console flagged INP
 // (interaction responsiveness) as "Need Improvement" on mobile. Only the
@@ -62,6 +126,17 @@ if (function_exists('add_filter')) {
 }
 
 if (function_exists('add_action')) {
+    add_action('init', function () {
+        if (function_exists('wp_register_sitemap_provider') && class_exists('Cozumel_CPT_Archives_Sitemap_Provider')) {
+            // Name must match $this->name in the provider and be [a-z] only
+            // (WordPress's sitemap URL rewrite regex rejects hyphens).
+            wp_register_sitemap_provider(
+                Cozumel_CPT_Archives_Sitemap_Provider::NAME,
+                new Cozumel_CPT_Archives_Sitemap_Provider()
+            );
+        }
+    });
+
     add_action('wp_head', function () {
         echo cozumel_ga4_script_tag(COZUMEL_GA4_MEASUREMENT_ID);
     });
