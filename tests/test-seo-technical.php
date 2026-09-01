@@ -60,4 +60,36 @@ assert_equal(strpos($beforeLoadGA, "gtag('js'") !== false, true, "gtag('js', ...
 assert_equal(strpos($loadGABody, "gtag('js'") === false, true, "gtag('js', ...) is not re-fired inside the deferred loadGA function");
 assert_equal(strpos($loadGABody, "gtag('config'") !== false, true, "gtag('config', ...) stays deferred inside loadGA, gated on interaction");
 
+// CPT archive pages (/rentals/, /for-sale/) — core sitemap lists the
+// individual properties but not the archive landing pages, and exposes no
+// filter to append them, so a dedicated provider publishes them. This is
+// the pure URL-list builder it delegates to.
+$resolver = function ($post_type) {
+    $map = [
+        'rental-property'  => 'https://cozumelhomes.net/rentals/',
+        'forsale-property' => 'https://cozumelhomes.net/for-sale/',
+        'unregistered'     => false, // get_post_type_archive_link() returns false
+    ];
+    return $map[$post_type] ?? null;
+};
+
+$urls = cozumel_cpt_archive_sitemap_urls(['rental-property', 'forsale-property'], $resolver);
+assert_equal(
+    $urls,
+    [
+        ['loc' => 'https://cozumelhomes.net/rentals/'],
+        ['loc' => 'https://cozumelhomes.net/for-sale/'],
+    ],
+    'builds one sitemap entry per resolvable CPT archive'
+);
+
+$partial = cozumel_cpt_archive_sitemap_urls(['rental-property', 'unregistered'], $resolver);
+assert_equal(
+    $partial,
+    [['loc' => 'https://cozumelhomes.net/rentals/']],
+    'skips a post type whose archive link cannot be resolved'
+);
+
+assert_equal(cozumel_cpt_archive_sitemap_urls([], $resolver), [], 'returns an empty list for no post types');
+
 test_summary_and_exit();
