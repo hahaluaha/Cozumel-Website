@@ -26,9 +26,9 @@
                 <p class="property-single__specs">
                     <?php
                     $specs = array_filter([
-                        $guests    ? "{$guests} guests"   : '',
-                        $bedrooms  ? "{$bedrooms} bedrooms" : '',
-                        $bathrooms ? "{$bathrooms} bathrooms" : '',
+                        $guests    ? cozumel_count_phrase($guests, 'guest')       : '',
+                        $bedrooms  ? cozumel_count_phrase($bedrooms, 'bedroom')   : '',
+                        $bathrooms ? cozumel_count_phrase($bathrooms, 'bathroom') : '',
                     ]);
                     echo esc_html(implode(' · ', $specs));
                     ?>
