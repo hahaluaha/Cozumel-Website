@@ -11,7 +11,7 @@
         <div class="hero__panel">
             <p class="hero__eyebrow">Cozumel, Mexico</p>
             <h1 class="hero__title">Your island story, <em>waiting</em></h1>
-            <p class="hero__tagline">Premium vacation rentals and real estate, hand-managed by someone who actually lives here.</p>
+            <p class="hero__tagline">Three Cozumel homes to rent — a downtown oceanfront apartment, a North Shore condo, and a house in a quiet local neighborhood. All pet-friendly, all booked direct with Kelley, who has hosted here since 1997.</p>
             <div class="hero__ctas">
                 <a href="/rentals/" class="btn btn--primary">View Rentals →</a>
                 <a href="/for-sale/" class="btn btn--outline">Properties for Sale</a>
