@@ -114,6 +114,12 @@ function cozumel_property_node(int $post_id): array {
     $lat       = get_post_meta($post_id, 'latitude', true)  ?: ($extra['latitude'] ?? '');
     $lng       = get_post_meta($post_id, 'longitude', true) ?: ($extra['longitude'] ?? '');
     $airbnb    = get_post_meta($post_id, 'airbnb_listing_url', true);
+    // Free-text meta field — reduce to a whole number so "269 m²" / "2,900"
+    // don't warn or truncate.
+    $floor_sqm = (int) preg_replace(
+        '/[^0-9]/', '',
+        (string) (get_post_meta($post_id, 'floor_size_sqm', true) ?: ($extra['floor_size_sqm'] ?? ''))
+    );
 
     $gallery_ids = get_post_meta($post_id, 'gallery_ids', true);
     if (!is_array($gallery_ids)) {
@@ -140,9 +146,11 @@ function cozumel_property_node(int $post_id): array {
 
     // Drop a trailing ".0"/".00" from a "325.0" meta value without rounding a
     // real fractional rate or grouping a 4-digit one ("1200" must not become
-    // "1,200").
-    $price = $base_rate !== ''
-        ? rtrim(rtrim(number_format((float) $base_rate, 2, '.', ''), '0'), '.')
+    // "1,200"). Strip any currency symbol / separators the admin field (free
+    // text) might carry so "1,200" doesn't cast to 1.0.
+    $rate_num = preg_replace('/[^0-9.]/', '', (string) $base_rate);
+    $price = $rate_num !== ''
+        ? rtrim(rtrim(number_format((float) $rate_num, 2, '.', ''), '0'), '.')
         : '';
 
     $node = [
@@ -153,7 +161,10 @@ function cozumel_property_node(int $post_id): array {
         'address'    => $address_node,
         'priceRange' => $price !== '' ? '$' . $price : '',
         'image'      => $images,
-        'provider'   => ['@id' => COZUMEL_BUSINESS_ID],
+        // LodgingBusiness is an Organization, so parentOrganization is the
+        // domain-valid link to the managing business node ("provider" is only
+        // valid on Service/Reservation/Invoice/Trip).
+        'parentOrganization' => ['@id' => COZUMEL_BUSINESS_ID],
     ];
 
     // Everything below is individually guarded, so a property with no per-slug
@@ -184,10 +195,10 @@ function cozumel_property_node(int $post_id): array {
     if (array_key_exists('pets_allowed', $extra)) {
         $node['petsAllowed'] = (bool) $extra['pets_allowed'];
     }
-    if (!empty($extra['floor_size_sqm'])) {
+    if ($floor_sqm > 0) {
         $node['floorSize'] = [
             '@type'    => 'QuantitativeValue',
-            'value'    => $extra['floor_size_sqm'],
+            'value'    => $floor_sqm,
             'unitCode' => 'MTK',
         ];
     }

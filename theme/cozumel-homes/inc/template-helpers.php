@@ -10,3 +10,18 @@ function cozumel_count_phrase($count, string $singular_noun): string {
     $noun = ((float) $count === 1.0) ? $singular_noun : $singular_noun . 's';
     return trim((string) $count) . ' ' . $noun;
 }
+
+// "2,900 sq ft" from a floor area stored in whole square metres. sq ft is
+// the primary unit (US/Canada audience); the metric value stays in the body
+// copy and the schema. Rounded to the nearest 50 sq ft so it reads as an
+// approximate figure, not a false-precision one. Returns '' for a blank,
+// zero, non-numeric, or negative value so the caller can omit it cleanly.
+function cozumel_floor_area_phrase($sqm): string {
+    // Free-text meta: keep only digits so "269 m²" or "2,900" still convert.
+    $sqm = (int) preg_replace('/[^0-9]/', '', (string) $sqm);
+    if ($sqm <= 0) {
+        return '';
+    }
+    $sqft = round($sqm * 10.7639 / 50) * 50;
+    return number_format($sqft) . ' sq ft';
+}

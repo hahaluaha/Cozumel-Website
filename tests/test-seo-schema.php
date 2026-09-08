@@ -66,13 +66,19 @@ assert_equal($schema['address']['addressLocality'], 'Cozumel', 'hardcodes Cozume
 assert_equal($schema['address']['addressRegion'], 'Quintana Roo', 'hardcodes Quintana Roo as the region');
 assert_equal($schema['address']['addressCountry'], 'MX', 'hardcodes MX as the country');
 assert_equal($schema['priceRange'], '$325', 'formats a "325.0" base_rate as "$325", not "$325.0"');
-assert_equal($schema['provider']['@id'], 'https://cozumelhomes.net/#business', 'links back to the business node via provider');
+assert_equal($schema['parentOrganization']['@id'], 'https://cozumelhomes.net/#business', 'links to the business node via parentOrganization (domain-valid, unlike provider)');
+assert_equal(isset($schema['provider']), false, 'no invalid provider property on the lodging node');
 
-// priceRange: strip trailing zeros without rounding or thousands-grouping
+// priceRange: strip trailing zeros without rounding or thousands-grouping,
+// and tolerate a currency symbol / separator in the free-text meta
 $__test_post_meta[42]['base_rate'] = '325.50';
 assert_equal(cozumel_property_node(42)['priceRange'], '$325.5', 'a real fractional rate is not rounded away');
 $__test_post_meta[42]['base_rate'] = '1200';
 assert_equal(cozumel_property_node(42)['priceRange'], '$1200', 'a 4-digit rate gets no thousands separator');
+$__test_post_meta[42]['base_rate'] = '1,200';
+assert_equal(cozumel_property_node(42)['priceRange'], '$1200', 'a comma in the stored rate does not collapse it to "$1"');
+$__test_post_meta[42]['base_rate'] = '$325';
+assert_equal(cozumel_property_node(42)['priceRange'], '$325', 'a leading currency symbol in the stored rate is tolerated');
 $__test_post_meta[42]['base_rate'] = '325.0';
 
 // image[] must never contain a literal false (the live bug)
@@ -90,8 +96,21 @@ assert_equal($schema['numberOfBedrooms'], 3, 'sets numberOfBedrooms');
 assert_equal($schema['numberOfBathroomsTotal'], 3.5, 'sets numberOfBathroomsTotal');
 assert_equal($schema['occupancy']['maxValue'], 6, 'sets max occupancy');
 assert_equal($schema['petsAllowed'], true, 'sets petsAllowed');
-assert_equal($schema['floorSize']['value'], 269, 'sets floorSize value in m²');
+assert_equal($schema['floorSize']['value'], 269, 'floorSize falls back to the per-slug m² when no meta is set');
 assert_equal($schema['floorSize']['unitCode'], 'MTK', 'floorSize uses the UN/CEFACT square-metre code');
+
+// floor_size_sqm post meta overrides the per-slug fallback
+$__test_post_meta[42]['floor_size_sqm'] = '300';
+assert_equal(cozumel_property_node(42)['floorSize']['value'], 300, 'floor_size_sqm meta overrides the per-slug m²');
+assert_equal(is_int(cozumel_property_node(42)['floorSize']['value']), true, 'a whole-number m² meta serialises as a number, not a string');
+// free-text meta: unit suffix / thousands separator must not warn or truncate
+$__test_post_meta[42]['floor_size_sqm'] = '269 m²';
+assert_equal(cozumel_property_node(42)['floorSize']['value'], 269, 'a "269 m²" meta reduces to the integer 269');
+$__test_post_meta[42]['floor_size_sqm'] = '2,900';
+assert_equal(cozumel_property_node(42)['floorSize']['value'], 2900, 'a "2,900" meta reduces to 2900, not 2');
+$__test_post_meta[42]['floor_size_sqm'] = 'n/a';
+assert_equal(isset(cozumel_property_node(42)['floorSize']), false, 'a non-numeric m² meta falls through to no floorSize');
+unset($__test_post_meta[42]['floor_size_sqm']);
 
 // amenities
 assert_equal($schema['amenityFeature'][0]['@type'], 'LocationFeatureSpecification', 'amenities are LocationFeatureSpecification nodes');
@@ -141,16 +160,19 @@ assert_equal($plain['priceRange'], '$180', 'price range still formatted without 
 assert_equal(isset($plain['geo']), false, 'no geo when there is no per-slug data and no lat/long meta');
 assert_equal(isset($plain['aggregateRating']), false, 'no ratings invented without a data block');
 assert_equal(isset($plain['address']['postalCode']), false, 'no postal code when the data block does not supply one');
+assert_equal(isset($plain['floorSize']), false, 'no floorSize without a data block or floor_size_sqm meta');
 assert_equal(cozumel_faq_node(43), [], 'no FAQ node for a property without curated FAQ');
 
-// ...but a property with no data block STILL emits geo + sameAs from its own
-// post meta (the case CCV / Casa Bohemia will hit before they get a block).
+// ...but a property with no data block STILL emits geo + sameAs + floorSize
+// from its own post meta (the case CCV / Casa Bohemia will hit first).
 $__test_post_meta[43]['latitude']  = '20.511111';
 $__test_post_meta[43]['longitude'] = '-86.911111';
 $__test_post_meta[43]['airbnb_listing_url'] = 'https://www.airbnb.com/rooms/CCV';
+$__test_post_meta[43]['floor_size_sqm'] = '95';
 $plain_with_meta = cozumel_property_node(43);
 assert_equal($plain_with_meta['geo']['latitude'], '20.511111', 'geo comes from post meta even without a per-slug data block');
 assert_equal($plain_with_meta['sameAs'], ['https://www.airbnb.com/rooms/CCV'], 'sameAs comes from airbnb_listing_url meta even without a data block');
+assert_equal($plain_with_meta['floorSize']['value'], 95, 'floorSize comes from floor_size_sqm meta even without a data block');
 unset($__test_post_meta[43]['latitude'], $__test_post_meta[43]['longitude'], $__test_post_meta[43]['airbnb_listing_url']);
 
 // ── Site-wide LocalBusiness node ─────────────────────────────────────────
