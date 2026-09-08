@@ -1,17 +1,20 @@
 <?php
-// Per-page <title> and <meta name="description"> for the five pages that
-// carry the site's search weight: the home page, the /rentals/ hub, and the
-// three rental-property pages. WordPress core + GeneratePress emit a <title>
-// (just "<Post> - <Site>") but no meta description at all, so search results
-// fall back to a scraped snippet. The map below is the single source of
-// truth; cozumel_seo_meta_* are pure and unit-tested, the add_filter /
-// add_action wiring at the bottom is WordPress glue only.
+// Per-page <title> and <meta name="description"> for the pages that carry
+// the site's search weight: the home page, the /rentals/ hub, the three
+// rental-property pages, and hand-picked guide posts (post type 'post').
+// WordPress core + GeneratePress emit a <title> (just "<Post> - <Site>") but
+// no meta description at all, so search results fall back to a scraped
+// snippet. The map below is the single source of truth; cozumel_seo_meta_*
+// are pure and unit-tested, the add_filter / add_action wiring at the bottom
+// is WordPress glue only.
 //
-// Keyed by 'home', 'rentals', or a rental-property post slug. The three
-// property slugs are the live production slugs (verified against
-// cozumelhomes.net/rentals/ on 2026-09-02); if a slug ever drifts, that
-// property just falls back to GeneratePress's default title and no meta
-// description — home and /rentals/ are unaffected. Titles are deliberately
+// Keyed by 'home', 'rentals', a rental-property post slug, or 'guide:<slug>'
+// for a blog post. Guide keys are prefixed so an ordinary blog post whose
+// slug happens to be 'home' / 'rentals' / a property slug can never inherit
+// that page's meta. The three property slugs are the live production slugs
+// (verified against cozumelhomes.net/rentals/ on 2026-09-02); if a slug ever
+// drifts, that page just falls back to GeneratePress's default title and no
+// meta description — the others are unaffected. Titles are deliberately
 // standalone (no " | Cozumel Homes" on the property pages) to stay near the
 // ~60-char search-result truncation; a couple run to ~64 where the trailing
 // keyword earns it. Descriptions target the ~155-char mark. Wording is
@@ -40,6 +43,11 @@ function cozumel_seo_meta_map(): array {
         'cozumels-casa-bohemia' => [
             'title'       => 'Casa Bohemia — Pet-Friendly House Rental in Cozumel',
             'description' => "A relaxed, pet-friendly house in Corpus Christi, Cozumel — two blocks from the waterfront, short walk to the Playa del Carmen ferry. Sleeps 6, from \$90/night.",
+        ],
+        // Guide posts (post type 'post'), keyed 'guide:<slug>'.
+        'guide:cozumel-north-shore-guide' => [
+            'title'       => "Cozumel's North Shore: A Guide to the Zona Hotelera Norte",
+            'description' => "What Cozumel's quiet North Shore is really like — calm leeward water, sunsets, a seafront walking path, where to eat, and how to snorkel or shore-dive safely.",
         ],
     ];
 }
@@ -74,6 +82,13 @@ function cozumel_current_seo_key(): string {
     }
     if (is_singular('rental-property')) {
         return (string) get_post_field('post_name', get_queried_object_id());
+    }
+    // Blog posts (guides): 'guide:<slug>'. The prefix keeps an ordinary post
+    // slugged 'home'/'rentals'/a property slug from inheriting that page's
+    // meta; a post whose prefixed key isn't in the map just falls through to
+    // GeneratePress's default title and no meta description.
+    if (is_singular('post')) {
+        return 'guide:' . get_post_field('post_name', get_queried_object_id());
     }
     return '';
 }

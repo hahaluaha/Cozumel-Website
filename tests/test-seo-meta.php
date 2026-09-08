@@ -5,10 +5,29 @@ require_once __DIR__ . '/../theme/cozumel-homes/inc/seo-meta.php';
 $map = cozumel_seo_meta_map();
 
 // Every mapped page has both a non-empty title and description.
-foreach (['home', 'rentals', 'cozumels-cool-caribbean-views', 'cozumels-nah-ha-condominium-101', 'cozumels-casa-bohemia'] as $key) {
+foreach ([
+    'home', 'rentals',
+    'cozumels-cool-caribbean-views', 'cozumels-nah-ha-condominium-101', 'cozumels-casa-bohemia',
+    'guide:cozumel-north-shore-guide',
+] as $key) {
     assert_equal(cozumel_seo_meta_title($key, $map) !== '', true, "{$key} has a title");
     assert_equal(cozumel_seo_meta_description($key, $map) !== '', true, "{$key} has a description");
 }
+
+// The North Shore guide entry (post type 'post', keyed 'guide:<slug>').
+assert_equal(
+    strpos(cozumel_seo_meta_title('guide:cozumel-north-shore-guide', $map), 'North Shore') !== false,
+    true,
+    'guide title names the North Shore'
+);
+assert_equal(
+    strlen(cozumel_seo_meta_title('guide:cozumel-north-shore-guide', $map)) <= 65,
+    true,
+    'guide title stays near the search-result truncation'
+);
+// A blog post whose bare slug collides with a page key must NOT inherit it.
+assert_equal(cozumel_seo_meta_title('guide:rentals', $map), '', "a post slugged 'rentals' gets no title from the map");
+assert_equal(cozumel_seo_meta_title('guide:home', $map), '', "a post slugged 'home' gets no title from the map");
 
 // Unknown key resolves to empty strings, not a PHP notice / null.
 assert_equal(cozumel_seo_meta_title('does-not-exist', $map), '', 'unknown key yields empty title');
