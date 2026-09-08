@@ -50,6 +50,7 @@ add_action('wp_enqueue_scripts', 'cozumel_enqueue_styles');
 define('COZUMEL_MAP_PROVIDER', 'openstreetmap');
 define('COZUMEL_GOOGLE_MAPS_KEY', defined('GOOGLE_MAPS_API_KEY') ? GOOGLE_MAPS_API_KEY : '');
 
+require_once get_stylesheet_directory() . '/inc/template-helpers.php';
 require_once get_stylesheet_directory() . '/inc/post-types.php';
 require_once get_stylesheet_directory() . '/inc/meta-fields.php';
 require_once get_stylesheet_directory() . '/inc/inquiry-form.php';
@@ -58,6 +59,7 @@ require_once get_stylesheet_directory() . '/inc/cli-sync-calendars.php';
 require_once get_stylesheet_directory() . '/inc/ical-sync.php';
 require_once get_stylesheet_directory() . '/inc/rest-availability.php';
 require_once get_stylesheet_directory() . '/inc/seo-technical.php';
+require_once get_stylesheet_directory() . '/inc/seo-meta.php';
 require_once get_stylesheet_directory() . '/inc/seo-schema.php';
 require_once get_stylesheet_directory() . '/inc/security-hardening.php';
 

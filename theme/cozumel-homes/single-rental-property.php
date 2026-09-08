@@ -10,6 +10,7 @@
         $guests           = get_post_meta(get_the_ID(), 'max_guests', true);
         $bedrooms         = get_post_meta(get_the_ID(), 'bedrooms', true);
         $bathrooms        = get_post_meta(get_the_ID(), 'bathrooms', true);
+        $floor_size_sqm   = get_post_meta(get_the_ID(), 'floor_size_sqm', true);
         ?>
 
         <?php get_template_part('template-parts/carousel'); ?>
@@ -22,13 +23,14 @@
                 <p class="property-single__neighborhood"><?php echo esc_html($neighborhood); ?></p>
             <?php endif; ?>
 
-            <?php if ($guests || $bedrooms || $bathrooms): ?>
+            <?php if ($guests || $bedrooms || $bathrooms || $floor_size_sqm): ?>
                 <p class="property-single__specs">
                     <?php
                     $specs = array_filter([
-                        $guests    ? "{$guests} guests"   : '',
-                        $bedrooms  ? "{$bedrooms} bedrooms" : '',
-                        $bathrooms ? "{$bathrooms} bathrooms" : '',
+                        $guests    ? cozumel_count_phrase($guests, 'guest')       : '',
+                        $bedrooms  ? cozumel_count_phrase($bedrooms, 'bedroom')   : '',
+                        $bathrooms ? cozumel_count_phrase($bathrooms, 'bathroom') : '',
+                        cozumel_floor_area_phrase($floor_size_sqm),
                     ]);
                     echo esc_html(implode(' · ', $specs));
                     ?>

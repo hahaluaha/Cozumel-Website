@@ -20,8 +20,12 @@ $rate         = get_post_meta(get_the_ID(), 'base_rate', true);
             <?php if ($guests || $bedrooms || $bathrooms): ?>
                 <p class="property-card__specs">
                     <?php
+                    // "bed" / "bath" stay as compact real-estate shorthand on
+                    // the card (never pluralized); only "guest(s)" gets the
+                    // singular/plural helper. The single-property page spells
+                    // all three out in full.
                     $specs = array_filter([
-                        $guests    ? "{$guests} guests" : '',
+                        $guests    ? cozumel_count_phrase($guests, 'guest') : '',
                         $bedrooms  ? "{$bedrooms} bed"  : '',
                         $bathrooms ? "{$bathrooms} bath" : '',
                     ]);

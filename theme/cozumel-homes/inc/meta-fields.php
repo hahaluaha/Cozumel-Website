@@ -3,7 +3,7 @@
 function cozumel_register_meta_fields() {
     $rental_fields = [
         'mac_id', 'neighborhood', 'address', 'base_rate', 'status',
-        'max_guests', 'bedrooms', 'bathrooms',
+        'max_guests', 'bedrooms', 'bathrooms', 'floor_size_sqm',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
         'manual_blocked_dates',
         'base_guests', 'extra_guest_fee',
@@ -92,6 +92,7 @@ function cozumel_rental_meta_box_html($post) {
     cozumel_meta_field('max_guests',          'Max Guests', $post->ID);
     cozumel_meta_field('bedrooms',            'Bedrooms', $post->ID);
     cozumel_meta_field('bathrooms',           'Bathrooms', $post->ID);
+    cozumel_meta_field('floor_size_sqm',      'Floor Size (whole m² — shown as "N sq ft" on the page, m² in the schema)', $post->ID);
     cozumel_meta_field('latitude',            'Latitude (set once — not overwritten by sync)', $post->ID);
     cozumel_meta_field('longitude',           'Longitude (set once — not overwritten by sync)', $post->ID);
     cozumel_meta_field('airbnb_ical_url',     'Airbnb iCal Export URL', $post->ID);
@@ -173,16 +174,24 @@ function cozumel_save_meta($post_id) {
 
     $all_fields = [
         'mac_id', 'neighborhood', 'address', 'base_rate', 'status',
-        'max_guests', 'bedrooms', 'bathrooms',
+        'max_guests', 'bedrooms', 'bathrooms', 'floor_size_sqm',
         'latitude', 'longitude', 'airbnb_ical_url', 'airbnb_listing_url',
         'asking_price', 'listing_url', 'notes',
         'base_guests', 'extra_guest_fee',
     ];
     foreach ($all_fields as $field) {
         if (array_key_exists($field, $_POST)) {
-            $value = ($field === 'notes')
-                ? sanitize_textarea_field($_POST[$field])
-                : sanitize_text_field($_POST[$field]);
+            if ($field === 'notes') {
+                $value = sanitize_textarea_field($_POST[$field]);
+            } elseif ($field === 'floor_size_sqm') {
+                // Whole m² only — it's rendered numerically ("N sq ft") and
+                // emitted as a schema QuantitativeValue. Store "" for a
+                // cleared/garbage entry rather than a stray "0".
+                $digits = preg_replace('/[^0-9]/', '', (string) $_POST[$field]);
+                $value  = $digits === '' ? '' : (string) (int) $digits;
+            } else {
+                $value = sanitize_text_field($_POST[$field]);
+            }
             update_post_meta($post_id, $field, $value);
         }
     }
