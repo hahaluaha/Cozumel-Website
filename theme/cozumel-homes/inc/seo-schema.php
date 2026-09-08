@@ -231,16 +231,23 @@ function cozumel_faq_node(int $post_id): array {
         return [];
     }
 
+    // Run the same texturize the_content() applies, so the schema Q&A text is
+    // character-identical to what renders in the visible FAQ (straight quotes
+    // and apostrophes become curly there).
+    $texturize = function_exists('wptexturize')
+        ? 'wptexturize'
+        : fn($s) => $s;
+
     return [
         '@type'      => 'FAQPage',
         '@id'        => get_permalink($post_id) . '#faq',
         'mainEntity' => array_map(
             fn($item) => [
                 '@type'          => 'Question',
-                'name'           => $item['q'],
+                'name'           => $texturize($item['q']),
                 'acceptedAnswer' => [
                     '@type' => 'Answer',
-                    'text'  => $item['a'],
+                    'text'  => $texturize($item['a']),
                 ],
             ],
             $extra['faq']

@@ -146,8 +146,18 @@ assert_equal($faq['@type'], 'FAQPage', 'FAQ node is a FAQPage');
 assert_equal($faq['@id'], 'https://cozumelhomes.net/rentals/test-property-42/#faq', 'FAQ node has a stable @id');
 assert_equal(count($faq['mainEntity']), 6, 'FAQ node has all six questions');
 assert_equal($faq['mainEntity'][0]['@type'], 'Question', 'FAQ entries are Question nodes');
-assert_equal($faq['mainEntity'][0]['name'], 'Is this the same as the other "Nah Ha" listings online?', 'first FAQ question is the anti-confusion one');
+assert_equal($faq['mainEntity'][0]['name'], 'Is this the same as the other "Nah Ha" listings online?', 'FAQ text passes through untouched when wptexturize is unavailable');
 assert_equal($faq['mainEntity'][0]['acceptedAnswer']['@type'], 'Answer', 'FAQ answers are Answer nodes');
+
+// When wptexturize exists (it always does in wp_head), the schema Q&A is run
+// through it so it matches the texturized visible FAQ character-for-character.
+// Defined inside a block so it is NOT hoisted above the assertion above.
+if (!function_exists('wptexturize')) {
+    function wptexturize($s) { return str_replace('"', "\u{201C}", $s); }
+}
+$faq_tx = cozumel_faq_node(42);
+assert_equal(strpos($faq_tx['mainEntity'][0]['name'], '"'), false, 'straight quotes are gone from the schema FAQ once texturized');
+assert_equal(strpos($faq_tx['mainEntity'][0]['name'], "\u{201C}") !== false, true, 'schema FAQ carries the same curly quote the page will render');
 
 // ── A rental with NO per-slug data block (e.g. before CCV/Bohemia added) ──
 $__test_post_meta[43] = ['address' => 'Test St', 'neighborhood' => 'Downtown', 'base_rate' => '180', 'max_guests' => '4'];
