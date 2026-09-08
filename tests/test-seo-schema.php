@@ -36,6 +36,10 @@ function wp_get_attachment_image_url($attachment_id, $size) {
     }
     return "https://cozumelhomes.net/wp-content/uploads/img-{$attachment_id}.jpg";
 }
+function get_theme_mod($name, $default = false) {
+    global $__test_theme_mods;
+    return $__test_theme_mods[$name] ?? $default;
+}
 
 require_once __DIR__ . '/../theme/cozumel-homes/inc/seo-schema.php';
 
@@ -191,6 +195,18 @@ assert_equal($business['@type'], 'LocalBusiness', 'sets LocalBusiness type');
 assert_equal($business['@id'], 'https://cozumelhomes.net/#business', 'business node has the stable @id the property links to');
 assert_equal($business['name'], 'Cozumel Homes', 'sets the business name');
 assert_equal($business['url'], 'https://cozumelhomes.net', 'sets the site URL');
+assert_equal($business['telephone'], '+52 987 876 0638', 'business node carries the contact phone (NAP consistency)');
+assert_equal($business['priceRange'], '$75–$325', 'business node carries a price range');
+assert_equal($business['logo'], COZUMEL_BUSINESS_LOGO_FALLBACK, 'logo falls back to the constant when no Customizer logo is set');
+assert_equal($business['image'], $business['logo'], 'image mirrors the logo so the Rich Results optional field is satisfied');
+
+// ...and resolves from the Customizer custom_logo attachment once one is set,
+// so it survives a media rename/replace.
+$__test_theme_mods['custom_logo'] = 155;
+$biz_with_logo = cozumel_local_business_node();
+assert_equal($biz_with_logo['logo'], 'https://cozumelhomes.net/wp-content/uploads/img-155.jpg', 'logo comes from the Customizer custom_logo when set');
+assert_equal($biz_with_logo['image'], $biz_with_logo['logo'], 'image tracks the resolved logo');
+unset($__test_theme_mods['custom_logo']);
 assert_equal($business['address']['streetAddress'], 'Avenida Rafael E. Melgar 602, Suite PA-6, Centro', 'business node now carries a real streetAddress');
 assert_equal($business['address']['postalCode'], '77600', 'business postal code is the Centro one, distinct from the property');
 assert_equal($business['address']['addressLocality'], 'Cozumel', 'nests Cozumel as the locality');

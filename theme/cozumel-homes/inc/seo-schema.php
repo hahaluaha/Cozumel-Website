@@ -17,6 +17,9 @@
 // to extend this to Cool Caribbean Views / Casa Bohemia.
 
 const COZUMEL_BUSINESS_ID = 'https://cozumelhomes.net/#business';
+// Fallback only — used until a proper site logo is set in the Customizer
+// (Appearance → Logo). cozumel_business_logo_url() prefers that.
+const COZUMEL_BUSINESS_LOGO_FALLBACK = 'https://cozumelhomes.net/wp-content/uploads/2026/08/business_logo_tmp-1.png';
 
 // ── Per-property structured data, keyed by production slug ─────────────────
 function cozumel_property_schema_data(string $slug): array {
@@ -87,12 +90,36 @@ function cozumel_property_schema_data(string $slug): array {
 }
 
 // ── Nodes (no @context — they live inside the page-level @graph) ──────────
+
+// The site logo, resolved from the Customizer "custom_logo" so it survives a
+// media rename/replace; the hardcoded fallback covers the period before one
+// is set. wp_get_attachment_image_url is already stubbed in the test harness.
+function cozumel_business_logo_url(): string {
+    if (function_exists('get_theme_mod')) {
+        $logo_id = (int) get_theme_mod('custom_logo');
+        if ($logo_id) {
+            $url = wp_get_attachment_image_url($logo_id, 'full');
+            if ($url) {
+                return $url;
+            }
+        }
+    }
+    return COZUMEL_BUSINESS_LOGO_FALLBACK;
+}
+
 function cozumel_local_business_node(): array {
+    $logo = cozumel_business_logo_url();
     return [
-        '@type' => 'LocalBusiness',
-        '@id'   => COZUMEL_BUSINESS_ID,
-        'name'  => 'Cozumel Homes',
-        'url'   => 'https://cozumelhomes.net',
+        '@type'       => 'LocalBusiness',
+        '@id'         => COZUMEL_BUSINESS_ID,
+        'name'        => 'Cozumel Homes',
+        'url'         => 'https://cozumelhomes.net',
+        // Phone matches the WhatsApp number on the Contact page / GBP — keep
+        // it in step with those (NAP consistency).
+        'telephone'   => '+52 987 876 0638',
+        'priceRange'  => '$75–$325',
+        'logo'        => $logo,
+        'image'       => $logo,
         'address' => [
             '@type'           => 'PostalAddress',
             'streetAddress'   => 'Avenida Rafael E. Melgar 602, Suite PA-6, Centro',
