@@ -1,8 +1,9 @@
 <?php
 // JSON-LD structured data generators. Pure functions — no WordPress calls
 // beyond get_post_meta/get_the_title/get_permalink/get_post_field/
-// wp_get_attachment_image_url/get_the_date/get_the_author_meta, which the
-// test file stubs directly so these run under plain `php`.
+// wp_get_attachment_image_url/get_the_date/get_the_author_meta/get_theme_mod
+// (and wptexturize in cozumel_faq_node), which the test file stubs directly
+// so these run under plain `php`.
 //
 // Output shape: a single <script type="application/ld+json"> per page holding
 // one @graph. Every page carries the LocalBusiness node (@id .../#business);
@@ -54,7 +55,7 @@ function cozumel_property_schema_data(string $slug): array {
                 'High-speed fiber internet (850 Mbps)',
                 'Full kitchen',
                 'Washer',
-                'Free street parking',
+                'Reserved parking space',
                 'Pet-friendly',
             ],
             'faq' => [
@@ -76,7 +77,7 @@ function cozumel_property_schema_data(string $slug): array {
                 ],
                 [
                     'q' => 'Is parking available, and are pets allowed?',
-                    'a' => 'Guests use free street parking on Avenida Rafael E. Melgar, steps from the entrance. Dogs are welcome with a $50 non-refundable deposit per pet.',
+                    'a' => 'The condo has its own designated parking space at the building. Dogs are welcome with a $50 non-refundable deposit per pet.',
                 ],
                 [
                     'q' => 'What are the rates?',
