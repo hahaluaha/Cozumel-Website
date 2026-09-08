@@ -34,8 +34,8 @@ function cozumel_seo_meta_map(): array {
             'description' => "A pet-friendly oceanfront apartment on Cozumel's downtown malecón — a 12-minute walk to the main plaza and cruise pier. Sleeps 2; nightly, weekly and monthly rates.",
         ],
         'cozumels-nah-ha-condominium-101' => [
-            'title'       => 'Nah Ha 101 — Luxury Oceanfront Cozumel Condo Rental',
-            'description' => "Luxury oceanfront condo on Cozumel's quiet North Shore — infinity pool, ocean views, sleeps 6, pet-friendly. Weekly and monthly rates, from \$325/night.",
+            'title'       => 'Nah Ha Condominium 101 | Oceanfront Cozumel Condo Rental',
+            'description' => "Oceanfront 3-bedroom condo on Cozumel's North Shore — sleeps 6, workspace, fast fiber, pet-friendly. Book Nah Ha Condominium 101 direct, from \$325/night.",
         ],
         'cozumels-casa-bohemia' => [
             'title'       => 'Casa Bohemia — Pet-Friendly House Rental in Cozumel',
