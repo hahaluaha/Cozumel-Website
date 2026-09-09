@@ -19,7 +19,11 @@ function cozumel_enqueue_styles() {
         );
     }
 
-    if (is_singular('rental-property')) {
+    // Every template that calls cozumel_render_inquiry_form() now renders the
+    // .date-trigger calendar-button markup, not just single rental-property
+    // pages — the script has to load wherever that form appears or the
+    // buttons are inert and the rest of the form stays hidden.
+    if (is_front_page() || is_page('contact') || is_singular(['rental-property', 'forsale-property'])) {
         wp_enqueue_script(
             'cozumel-availability-calendar',
             get_stylesheet_directory_uri() . '/assets/js/availability-calendar.js',

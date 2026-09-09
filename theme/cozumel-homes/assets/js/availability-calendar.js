@@ -74,6 +74,11 @@
         var popover = root.querySelector('.availability-calendar-popover');
         var form = root.closest('form');
         var restOfForm = form ? form.querySelector('.inquiry-form__rest') : null;
+        // Only the real single-property booking flow (has an availability
+        // API to check against) gates the rest of the form behind picking
+        // both dates — on the general homepage/contact/for-sale inquiry,
+        // dates are optional and the rest of the form is always visible.
+        var gateForm = !!apiUrl;
 
         var selection = { start: null, end: null };
         var mode = null;
@@ -116,7 +121,7 @@
                 checkoutInput.value = '';
                 checkoutTrigger.textContent = 'Select date';
                 checkoutTrigger.disabled = true;
-                if (restOfForm) restOfForm.classList.add('is-hidden');
+                if (restOfForm && gateForm) restOfForm.classList.add('is-hidden');
                 viewMonthOffset = 0;
             } else {
                 var t = today();
@@ -180,6 +185,15 @@
 
         checkinTrigger.disabled = true;
         checkinTrigger.textContent = 'Loading dates…';
+
+        if (!apiUrl) {
+            // No property chosen yet (homepage/contact general inquiry) —
+            // nothing to check availability against, so every date is pickable.
+            unavailableSet = new Set();
+            checkinTrigger.disabled = false;
+            checkinTrigger.textContent = 'Select date';
+            return;
+        }
 
         fetch(apiUrl)
             .then(function (res) {
