@@ -104,6 +104,20 @@ input[type="date"] {
     color: var(--contrast, #222222);
     font: inherit;
 }
+/* iOS Safari doesn't reliably inherit `color` into a date input's internal
+   value text once a custom background is set on the host element — the
+   pseudo-elements need it spelled out directly, -webkit-text-fill-color
+   included, or the mm/dd/yyyy value renders invisible against the fill. */
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    color: var(--contrast, #222222);
+    -webkit-text-fill-color: var(--contrast, #222222);
+    opacity: 1;
+}
 .date-trigger {
     display: inline-block; padding: 10px 20px; margin-top: 4px;
     border: none; border-radius: 999px; color: var(--color-white);
