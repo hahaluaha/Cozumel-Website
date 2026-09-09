@@ -120,7 +120,7 @@ input[type="date"]::-webkit-datetime-edit-year-field {
 }
 .date-trigger {
     display: inline-block; padding: 10px 20px; margin-top: 4px;
-    border: none; border-radius: 999px; color: var(--color-white);
+    border: 1px solid var(--color-turquoise-deep); border-radius: 999px; color: var(--color-white);
     background: linear-gradient(135deg, var(--color-turquoise), var(--color-turquoise-deep));
     font: inherit; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
 }
